@@ -1,0 +1,1493 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRIND.RANK — Productivity Tribunal</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Boogaloo&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
+
+/* ══════════════════════════════════════════════
+   ROOT & RESET
+══════════════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --black:   #0d0d0d;
+  --white:   #fffef5;
+  --yellow:  #FFE500;
+  --pink:    #FF3CAC;
+  --cyan:    #00F5FF;
+  --green:   #00FF88;
+  --orange:  #FF6B00;
+  --purple:  #7B2FFF;
+  --red:     #FF2D55;
+  --lime:    #CCFF00;
+  --outline: 3px solid var(--black);
+  --shadow:  4px 4px 0 var(--black);
+  --shadow-lg: 6px 6px 0 var(--black);
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--black);
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Ccircle cx='12' cy='12' r='5' fill='%23FFE500' stroke='%230d0d0d' stroke-width='2'/%3E%3C/svg%3E") 12 12, auto;
+}
+
+/* halftone bg pattern */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(255,229,0,0.08) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ══════════════════════════════════════════════
+   SCREEN SYSTEM
+══════════════════════════════════════════════ */
+.screen { display: none; min-height: 100vh; position: relative; z-index: 1; }
+.screen.active { display: flex; flex-direction: column; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1); }
+
+@keyframes popIn {
+  from { opacity:0; transform: scale(0.93) translateY(20px); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
+}
+
+/* ══════════════════════════════════════════════
+   MASTHEAD
+══════════════════════════════════════════════ */
+.masthead {
+  background: var(--yellow);
+  border-bottom: 4px solid var(--black);
+  padding: 14px 28px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; gap: 10px;
+  position: sticky; top: 0; z-index: 100;
+}
+
+.logo {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(24px, 5vw, 36px);
+  color: var(--black);
+  letter-spacing: 2px;
+  text-shadow: 3px 3px 0 var(--pink);
+  text-decoration: none;
+}
+.logo em { color: var(--pink); font-style: normal; text-shadow: 3px 3px 0 var(--black); }
+
+.masthead-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+.user-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--black);
+  color: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 99px;
+  padding: 5px 14px 5px 6px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px;
+}
+.pill-av {
+  width: 26px; height: 26px;
+  background: var(--pink);
+  border: 2px solid var(--yellow);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; color: var(--black);
+}
+.btn-so {
+  background: none; border: none;
+  font-family: 'Nunito', sans-serif;
+  font-size: 11px; font-weight: 800;
+  letter-spacing: 1px; color: var(--yellow);
+  cursor: pointer; text-transform: uppercase;
+  transition: color 0.2s;
+}
+.btn-so:hover { color: var(--pink); }
+
+/* ══════════════════════════════════════════════
+   SIGN IN SCREEN
+══════════════════════════════════════════════ */
+#screen-signin .wrap {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #0d0d0d 0%, #1a0a2e 50%, #0d0d0d 100%);
+}
+
+.signin-box {
+  background: var(--yellow);
+  border: 4px solid var(--black);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 44px 44px 36px;
+  width: 100%; max-width: 480px;
+  position: relative;
+  overflow: hidden;
+}
+@media(max-width:520px){ .signin-box{ padding: 28px 22px; } }
+
+.signin-box::before {
+  content: '';
+  position: absolute; top: -2px; left: -2px; right: -2px;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, var(--pink) 0px, var(--pink) 20px, var(--cyan) 20px, var(--cyan) 40px, var(--green) 40px, var(--green) 60px, var(--orange) 60px, var(--orange) 80px);
+  border-radius: 24px 24px 0 0;
+}
+
+.signin-mascot {
+  text-align: center; margin-bottom: 16px;
+}
+
+.signin-headline {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(28px, 6vw, 44px);
+  color: var(--black);
+  line-height: 1.1; margin-bottom: 8px;
+  text-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+}
+.signin-headline span { color: var(--pink); }
+
+.signin-sub {
+  font-size: 13px; font-weight: 700;
+  color: rgba(13,13,13,0.7);
+  margin-bottom: 24px; line-height: 1.5;
+}
+
+.field-lbl {
+  display: block;
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px; letter-spacing: 1px;
+  color: var(--black); margin-bottom: 6px;
+}
+
+.field-in {
+  width: 100%;
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 10px;
+  color: var(--black);
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px; font-weight: 700;
+  padding: 11px 14px;
+  outline: none;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: all 0.15s;
+  margin-bottom: 16px;
+}
+.field-in:focus {
+  box-shadow: 4px 4px 0 var(--pink);
+  border-color: var(--pink);
+  transform: translate(-1px, -1px);
+}
+
+.field-hint { font-size: 11px; font-weight: 700; color: rgba(13,13,13,0.6); margin-top: -12px; margin-bottom: 16px; }
+
+.btn-enter {
+  width: 100%;
+  background: var(--black);
+  color: var(--yellow);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px; letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--pink);
+  transition: all 0.15s;
+  margin-top: 4px;
+}
+.btn-enter:hover:not(:disabled) {
+  transform: translate(-2px,-2px);
+  box-shadow: 6px 6px 0 var(--pink);
+}
+.btn-enter:active:not(:disabled) {
+  transform: translate(2px,2px);
+  box-shadow: 2px 2px 0 var(--pink);
+}
+.btn-enter:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.err-pop {
+  background: var(--red);
+  color: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: none;
+  animation: shake 0.3s ease;
+}
+.err-pop.show { display: block; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ══════════════════════════════════════════════
+   BATTERY SVG MASCOT
+══════════════════════════════════════════════ */
+.battery-mascot {
+  display: inline-block;
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+
+/* ══════════════════════════════════════════════
+   QUIZ SCREEN
+══════════════════════════════════════════════ */
+#screen-quiz {
+  background: linear-gradient(160deg, #1a0533 0%, #0d0d0d 60%, #001a1f 100%);
+}
+
+.quiz-inner {
+  max-width: 720px; margin: 0 auto;
+  padding: 28px 20px 60px; width: 100%;
+  flex: 1; display: flex; flex-direction: column;
+}
+
+.quiz-top-bar {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
+}
+
+.mini-battery {
+  flex-shrink: 0;
+  transition: all 0.5s ease;
+}
+
+.q-prog-wrap { flex: 1; }
+.q-prog-label {
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px; color: var(--yellow);
+  letter-spacing: 1px; margin-bottom: 6px;
+}
+.q-prog-bg {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 99px; height: 14px; overflow: hidden;
+}
+.q-prog-fill {
+  height: 100%; border-radius: 99px;
+  background: linear-gradient(90deg, var(--cyan), var(--green));
+  box-shadow: 0 0 12px var(--cyan);
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+.q-card {
+  background: var(--white);
+  border: 4px solid var(--black);
+  border-radius: 20px;
+  padding: 32px 36px;
+  box-shadow: 8px 8px 0 var(--pink);
+  flex: 1;
+  animation: cardSlide 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  position: relative; overflow: hidden;
+}
+@media(max-width:520px){ .q-card{ padding: 22px 18px; } }
+
+.q-card::after {
+  content: '';
+  position: absolute; top:0; left:0; right:0; height: 6px;
+  background: var(--q-color, var(--cyan));
+  border-radius: 16px 16px 0 0;
+}
+
+@keyframes cardSlide {
+  from { opacity:0; transform: translateX(40px) scale(0.95); }
+  to   { opacity:1; transform: translateX(0) scale(1); }
+}
+
+.q-tag {
+  display: inline-block;
+  background: var(--q-color, var(--cyan));
+  color: var(--black);
+  font-family: 'Fredoka One', cursive;
+  font-size: 11px; letter-spacing: 2px;
+  padding: 3px 12px; border-radius: 99px;
+  border: 2px solid var(--black);
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.q-text {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(17px, 3vw, 23px);
+  line-height: 1.35;
+  margin-bottom: 24px;
+  color: var(--black);
+}
+
+.q-options { display: flex; flex-direction: column; gap: 10px; }
+
+.opt-btn {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 12px 16px;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800;
+  color: var(--black);
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 3px 3px 0 var(--black);
+  transition: all 0.12s;
+  position: relative;
+}
+
+.opt-btn:hover {
+  transform: translate(-2px,-2px);
+  box-shadow: 5px 5px 0 var(--black);
+  background: var(--yellow);
+}
+
+.opt-btn.sel {
+  background: var(--black);
+  color: var(--yellow);
+  border-color: var(--black);
+  box-shadow: 3px 3px 0 var(--pink);
+  transform: translate(-1px,-1px);
+}
+.q-card.excuse .opt-btn.sel { background: var(--red); color: var(--white); box-shadow: 3px 3px 0 var(--black); }
+
+.opt-ltr {
+  width: 26px; height: 26px;
+  border: 2px solid currentColor;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px; flex-shrink: 0;
+}
+
+.q-footer {
+  display: flex; justify-content: space-between;
+  gap: 12px; margin-top: 20px;
+}
+
+.btn-back {
+  background: rgba(255,255,255,0.1);
+  color: var(--white);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 12px;
+  padding: 12px 22px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-back:hover { background: rgba(255,255,255,0.2); }
+
+.btn-forward {
+  background: var(--cyan);
+  color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 12px 28px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px; letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.12s;
+  flex: 1; max-width: 220px;
+}
+.btn-forward:hover:not(:disabled) { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); background: var(--green); }
+.btn-forward:active:not(:disabled) { transform: translate(2px,2px); box-shadow: 2px 2px 0 var(--black); }
+.btn-forward:disabled { opacity: 0.35; cursor: not-allowed; box-shadow: 2px 2px 0 var(--black); }
+
+/* ══════════════════════════════════════════════
+   RESULTS SCREEN
+══════════════════════════════════════════════ */
+#screen-results {
+  background: linear-gradient(135deg, #0d0d0d, #1a0a2e);
+}
+
+.results-inner {
+  max-width: 680px; margin: 0 auto;
+  padding: 32px 20px 60px; width: 100%;
+}
+
+.verdict-card {
+  background: var(--yellow);
+  border: 4px solid var(--black);
+  border-radius: 24px;
+  padding: 36px 32px;
+  box-shadow: 8px 8px 0 var(--pink);
+  text-align: center;
+  margin-bottom: 24px;
+  position: relative; overflow: hidden;
+}
+
+.verdict-card.bad {
+  background: var(--red);
+  box-shadow: 8px 8px 0 var(--black);
+}
+.verdict-card.bad .big-score { color: var(--yellow); text-shadow: 4px 4px 0 var(--black); }
+.verdict-card.pompous {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  box-shadow: 8px 8px 0 var(--yellow);
+}
+.verdict-card.pompous .big-score { color: var(--yellow); }
+
+.verdict-title {
+  font-family: 'Fredoka One', cursive;
+  font-size: 12px; letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(13,13,13,0.6);
+  margin-bottom: 10px;
+}
+.verdict-card.bad .verdict-title,
+.verdict-card.pompous .verdict-title { color: rgba(255,255,255,0.7); }
+
+.big-score {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(80px, 20vw, 130px);
+  line-height: 1;
+  color: var(--black);
+  text-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+  animation: scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes scorePop { from{transform:scale(0.3);opacity:0} to{transform:scale(1);opacity:1} }
+
+.score-slash { font-family: 'Fredoka One', cursive; font-size: 24px; color: rgba(13,13,13,0.5); }
+.verdict-card.bad .score-slash { color: rgba(255,255,255,0.5); }
+
+.verdict-label-badge {
+  display: inline-block;
+  background: var(--black);
+  color: var(--yellow);
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px; letter-spacing: 2px;
+  padding: 5px 18px; border-radius: 99px;
+  margin-top: 10px; margin-bottom: 16px;
+}
+.verdict-card.bad .verdict-label-badge { background: var(--yellow); color: var(--black); }
+
+/* large battery in results */
+.result-battery-wrap {
+  margin: 16px auto;
+  display: flex; justify-content: center;
+}
+
+.roast-bubble {
+  background: var(--white);
+  border: 4px solid var(--black);
+  border-radius: 16px;
+  padding: 18px 22px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px; font-weight: 800;
+  line-height: 1.6;
+  color: var(--black);
+  margin-top: 18px;
+  position: relative;
+  text-align: left;
+  box-shadow: 4px 4px 0 var(--black);
+}
+.roast-bubble::before {
+  content: '💬';
+  font-size: 22px;
+  position: absolute; top: -16px; left: 16px;
+}
+.roast-bubble.pompous::before { content: '🎩'; }
+.roast-attr {
+  display: block;
+  font-family: 'Fredoka One', cursive;
+  font-size: 11px; letter-spacing: 2px;
+  color: var(--pink); margin-top: 10px;
+  text-transform: uppercase;
+}
+
+/* breakdown */
+.bd-row {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+@media(max-width:500px){ .bd-row{ grid-template-columns: repeat(2,1fr); } }
+
+.bd-chip {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: 4px 4px 0 var(--black);
+}
+.bd-val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 28px;
+  display: block; line-height: 1;
+}
+.bd-val.bonus { color: var(--green); }
+.bd-lbl {
+  font-size: 10px; font-weight: 800;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: rgba(13,13,13,0.55);
+  margin-top: 4px; display: block;
+}
+
+.insult-strip {
+  background: var(--red);
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px; color: var(--white);
+  margin-bottom: 16px;
+  box-shadow: 3px 3px 0 var(--black);
+}
+
+.btn-go-lb {
+  width: 100%;
+  background: var(--pink);
+  color: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  padding: 16px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 18px; letter-spacing: 1px;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--black);
+  transition: all 0.15s; margin-top: 6px;
+}
+.btn-go-lb:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--black); background: var(--purple); }
+
+.btn-retake2 {
+  width: 100%;
+  background: var(--white);
+  color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  padding: 13px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.15s; margin-top: 12px;
+}
+.btn-retake2:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); background: var(--cyan); }
+
+/* ══════════════════════════════════════════════
+   LEADERBOARD SCREEN
+══════════════════════════════════════════════ */
+#screen-leaderboard {
+  background: var(--black);
+}
+
+.lb-inner {
+  max-width: 900px; margin: 0 auto;
+  padding: 28px 20px 60px; width: 100%;
+}
+
+.lb-headline {
+  font-family: 'Fredoka One', cursive;
+  font-size: clamp(32px, 7vw, 58px);
+  color: var(--yellow);
+  text-shadow: 4px 4px 0 var(--pink);
+  line-height: 1.1; margin-bottom: 6px;
+}
+.lb-headline span { color: var(--cyan); text-shadow: 4px 4px 0 var(--purple); }
+
+.lb-sub {
+  font-size: 12px; font-weight: 800;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+/* STATS STRIP */
+.stats-strip {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 10px; margin-bottom: 22px;
+}
+@media(max-width:500px){ .stats-strip { grid-template-columns: repeat(2,1fr); } }
+
+.stat-chip {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.15s;
+}
+.stat-chip:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); }
+
+.stat-val {
+  font-family: 'Fredoka One', cursive;
+  font-size: 26px; display: block; line-height: 1;
+}
+.stat-lbl {
+  font-size: 9px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(13,13,13,0.5);
+  margin-top: 4px; display: block;
+}
+.stat-chip.shame-stat { background: var(--red); color: var(--white); border-color: var(--black); }
+.stat-chip.shame-stat .stat-lbl { color: rgba(255,255,255,0.7); }
+
+/* TAB BAR */
+.tab-strip {
+  display: flex; gap: 8px; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.tab-pill {
+  background: rgba(255,255,255,0.1);
+  color: var(--white);
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 99px;
+  padding: 8px 20px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.15s;
+}
+.tab-pill:hover { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.4); transform: translateY(-2px); }
+.tab-pill.active { background: var(--yellow); color: var(--black); border-color: var(--black); box-shadow: 3px 3px 0 var(--black); }
+.tab-pill.shame-t.active { background: var(--red); color: var(--white); box-shadow: 3px 3px 0 var(--yellow); }
+.tab-pill.excuse-t.active { background: var(--orange); color: var(--white); box-shadow: 3px 3px 0 var(--yellow); }
+.tab-pill.reverse-t.active { background: var(--purple); color: var(--white); box-shadow: 3px 3px 0 var(--cyan); }
+
+/* BOARD ENTRIES */
+.board { display: flex; flex-direction: column; gap: 10px; }
+
+.board-entry {
+  background: var(--white);
+  border: 3px solid var(--black);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: 48px 1fr 140px 70px;
+  gap: 12px; align-items: center;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.15s;
+  animation: entryPop 0.3s cubic-bezier(0.34,1.2,0.64,1) both;
+  position: relative;
+  overflow: hidden;
+}
+@media(max-width:540px){ .board-entry{ grid-template-columns: 38px 1fr 60px; } }
+@media(max-width:540px){ .bar-col{ display:none; } }
+
+@keyframes entryPop { from{opacity:0;transform:translateY(12px) scale(0.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+.board-entry:hover { transform: translate(-3px,-3px); box-shadow: 7px 7px 0 var(--black); }
+.board-entry.r1 { background: var(--yellow); border-color: var(--black); box-shadow: 4px 4px 0 var(--orange); }
+.board-entry.r2 { background: #e8e8e8; }
+.board-entry.r3 { background: #ffe8cc; }
+.board-entry.shame-e { background: var(--red); color: var(--white); box-shadow: 4px 4px 0 var(--yellow); animation: shameWiggle 2s ease infinite; }
+.board-entry.pomp-e  { background: linear-gradient(135deg, #f0e0ff, #ffe0f0); box-shadow: 4px 4px 0 var(--purple); }
+.board-entry.you-e   { border: 3px dashed var(--cyan); box-shadow: 4px 4px 0 var(--cyan); }
+
+@keyframes shameWiggle {
+  0%,100%{transform:rotate(0deg)}
+  2%{transform:rotate(-1deg)}
+  4%{transform:rotate(1deg)}
+  6%{transform:rotate(-1deg)}
+  8%{transform:rotate(0deg)}
+}
+
+.rank-col {
+  text-align: center;
+  font-family: 'Fredoka One', cursive;
+  font-size: 22px;
+}
+
+.entry-name {
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.you-badge {
+  display: inline-block;
+  background: var(--cyan); color: var(--black);
+  font-family: 'Fredoka One', cursive;
+  font-size: 9px; padding: 1px 7px;
+  border: 2px solid var(--black);
+  border-radius: 99px; margin-left: 6px;
+  vertical-align: middle;
+}
+.entry-insult {
+  font-size: 11px; font-weight: 800;
+  color: var(--red); margin-top: 2px;
+}
+.shame-e .entry-insult { color: var(--yellow); }
+.entry-roast {
+  font-size: 11px; font-weight: 700; font-style: italic;
+  color: rgba(13,13,13,0.5); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.shame-e .entry-roast { color: rgba(255,255,255,0.7); }
+.entry-time { font-size: 10px; font-weight: 700; color: rgba(13,13,13,0.4); margin-top: 2px; }
+.shame-e .entry-time { color: rgba(255,255,255,0.5); }
+
+.bar-col { display: flex; flex-direction: column; gap: 4px; }
+.bar-bg  { background: rgba(13,13,13,0.1); border: 2px solid rgba(13,13,13,0.2); border-radius: 99px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 99px; transition: width 0.8s cubic-bezier(0.22,1,0.36,1); }
+.shame-e .bar-bg { background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.3); }
+.bar-sub { font-size: 9px; font-weight: 800; letter-spacing: 1px; text-align: right; opacity: 0.6; }
+.bonus-tag { font-size: 8px; font-weight: 900; letter-spacing: 1px; color: var(--green); }
+.shame-e .bonus-tag { color: var(--yellow); }
+
+.pct-col {
+  font-family: 'Fredoka One', cursive;
+  font-size: 24px; text-align: right; line-height: 1;
+}
+.shame-e .pct-col { color: var(--yellow); }
+.r1 .pct-col { color: var(--orange); }
+
+.empty-board {
+  text-align: center; padding: 60px 20px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Fredoka One', cursive;
+  font-size: 16px; letter-spacing: 2px;
+  border: 3px dashed rgba(255,255,255,0.15);
+  border-radius: 16px; line-height: 2.5;
+}
+
+.lb-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+
+.btn-retake-lb {
+  background: var(--cyan); color: var(--black);
+  border: 3px solid var(--black);
+  border-radius: 12px; padding: 12px 24px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--black);
+  transition: all 0.15s;
+}
+.btn-retake-lb:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0 var(--black); }
+
+.btn-refresh-lb {
+  background: rgba(255,255,255,0.1);
+  color: var(--white);
+  border: 2px solid rgba(255,255,255,0.3);
+  border-radius: 12px; padding: 12px 20px;
+  font-family: 'Fredoka One', cursive;
+  font-size: 13px; letter-spacing: 1px;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-refresh-lb:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+/* ══════════════════════════════════════════════
+   CONFETTI
+══════════════════════════════════════════════ */
+.confetti-piece {
+  position: fixed;
+  width: 12px; height: 12px;
+  border: 2px solid var(--black);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+  animation: confettiFall linear forwards;
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════════ */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--yellow); color: var(--black);
+  font-family: 'Fredoka One', cursive;
+  font-size: 14px; letter-spacing: 1px;
+  padding: 12px 20px;
+  border: 3px solid var(--black);
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 var(--black);
+  opacity: 0; transform: translateY(12px) scale(0.95);
+  transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none; z-index: 999;
+  max-width: 300px; line-height: 1.5;
+}
+.toast.show { opacity:1; transform:translateY(0) scale(1); }
+.toast.bad  { background: var(--red); color: var(--white); box-shadow: 4px 4px 0 var(--yellow); }
+.toast.good { background: var(--green); box-shadow: 4px 4px 0 var(--black); }
+
+/* LOADING */
+.loading { position: fixed; inset:0; background: rgba(13,13,13,0.85); display: none; align-items: center; justify-content: center; z-index: 500; flex-direction: column; gap: 16px; }
+.loading.show { display: flex; }
+.loading-text { font-family: 'Fredoka One', cursive; font-size: 20px; color: var(--yellow); letter-spacing: 3px; animation: loadBlink 1s ease infinite; }
+@keyframes loadBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* SECTION LABEL */
+.section-tag {
+  font-family: 'Fredoka One', cursive;
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(255,255,255,0.4);
+  border-bottom: 2px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px; margin-bottom: 16px;
+}
+.section-tag-dark {
+  font-family: 'Fredoka One', cursive;
+  font-size: 11px; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(13,13,13,0.45);
+  border-bottom: 2px solid rgba(13,13,13,0.1);
+  padding-bottom: 8px; margin-bottom: 14px;
+}
+
+/* HOVER WIGGLE for interactive elements */
+.wiggle:hover { animation: wiggleAnim 0.4s ease; }
+@keyframes wiggleAnim { 0%,100%{transform:rotate(0deg)} 25%{transform:rotate(-3deg)} 75%{transform:rotate(3deg)} }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ SIGN IN ════════════════ -->
+<div id="screen-signin" class="screen active">
+  <div class="masthead">
+    <div class="logo">GRIND<em>.</em>RANK</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:13px;color:var(--black);letter-spacing:1px;opacity:0.6;">THE PRODUCTIVITY TRIBUNAL ⚡</div>
+  </div>
+  <div class="wrap" style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;background:linear-gradient(135deg,#0d0d0d 0%,#1a0a2e 50%,#001a1f 100%);">
+    <div class="signin-box">
+
+      <!-- Mascot -->
+      <div class="signin-mascot">
+        <div class="battery-mascot" id="signin-battery">
+          <!-- Full battery mascot SVG -->
+          <svg width="110" height="140" viewBox="0 0 110 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- battery body -->
+            <rect x="8" y="24" width="94" height="90" rx="14" fill="#FFE500" stroke="#0d0d0d" stroke-width="4"/>
+            <!-- battery cap -->
+            <rect x="36" y="10" width="38" height="18" rx="6" fill="#FFE500" stroke="#0d0d0d" stroke-width="4"/>
+            <!-- fill segments -->
+            <rect x="16" y="32" width="18" height="74" rx="6" fill="#00FF88" stroke="#0d0d0d" stroke-width="2.5"/>
+            <rect x="38" y="32" width="18" height="74" rx="6" fill="#00FF88" stroke="#0d0d0d" stroke-width="2.5"/>
+            <rect x="60" y="32" width="18" height="74" rx="6" fill="#00FF88" stroke="#0d0d0d" stroke-width="2.5"/>
+            <rect x="76" y="32" width="18" height="74" rx="6" fill="#00FF88" stroke="#0d0d0d" stroke-width="2.5"/>
+            <!-- eyes -->
+            <circle cx="38" cy="76" r="9" fill="#0d0d0d"/>
+            <circle cx="72" cy="76" r="9" fill="#0d0d0d"/>
+            <circle cx="41" cy="73" r="3" fill="white"/>
+            <circle cx="75" cy="73" r="3" fill="white"/>
+            <!-- smile -->
+            <path d="M 36 94 Q 55 106 74 94" stroke="#0d0d0d" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+            <!-- lightning bolt -->
+            <text x="46" y="62" font-size="18" fill="#0d0d0d">⚡</text>
+          </svg>
+        </div>
+      </div>
+
+      <div class="signin-headline">You're About<br>To Be <span>Judged!</span></div>
+      <p class="signin-sub">Sign in to take the 10-question productivity assessment. Your score is calculated by us — not you. And it goes public. 👀</p>
+
+      <div class="err-pop" id="si-err"></div>
+
+      <label class="field-lbl" for="si-u">🎮 Your Handle</label>
+      <input class="field-in" type="text" id="si-u" placeholder="e.g. ProCrastinator3000" maxlength="24" autocomplete="username"/>
+
+      <label class="field-lbl" for="si-p">🔐 Password</label>
+      <input class="field-in" type="password" id="si-p" placeholder="Min. 4 characters" autocomplete="current-password"/>
+
+      <p class="field-hint">✨ No account? We'll make one for you automatically.</p>
+
+      <button class="btn-enter wiggle" id="si-btn" onclick="doSignIn()">
+        ⚡ Enter the Tribunal!
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ QUIZ ════════════════ -->
+<div id="screen-quiz" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<em>.</em>RANK</div>
+    <div class="masthead-right">
+      <div class="user-pill">
+        <div class="pill-av" id="q-av">?</div>
+        <span id="q-un">—</span>
+        <button class="btn-so" onclick="doSignOut()">sign out</button>
+      </div>
+    </div>
+  </div>
+  <div class="quiz-inner" id="quiz-inner">
+    <div class="quiz-top-bar">
+      <!-- Mini battery indicator -->
+      <div class="mini-battery" id="mini-batt">
+        <svg width="52" height="66" viewBox="0 0 52 66" id="mini-batt-svg">
+          <rect x="4" y="12" width="44" height="50" rx="8" fill="#FFE500" stroke="#0d0d0d" stroke-width="3"/>
+          <rect x="17" y="4" width="18" height="12" rx="4" fill="#FFE500" stroke="#0d0d0d" stroke-width="3"/>
+          <rect id="mb-fill" x="10" y="18" width="32" height="38" rx="5" fill="#00FF88"/>
+          <circle cx="26" cy="37" r="7" fill="#0d0d0d"/>
+          <circle cx="26" cy="37" r="3" fill="white"/>
+          <text x="19" y="30" font-size="10" fill="#0d0d0d">⚡</text>
+        </svg>
+      </div>
+      <div class="q-prog-wrap">
+        <div class="q-prog-label" id="prog-lbl">Question 1 of 10</div>
+        <div class="q-prog-bg">
+          <div class="q-prog-fill" id="prog-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div id="q-area"></div>
+    <div class="q-footer">
+      <button class="btn-back" id="btn-prev" onclick="prevQ()" style="display:none">← Back</button>
+      <button class="btn-forward" id="btn-next" onclick="nextQ()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ RESULTS ════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<em>.</em>RANK</div>
+    <div class="masthead-right">
+      <div class="user-pill">
+        <div class="pill-av" id="r-av">?</div>
+        <span id="r-un">—</span>
+        <button class="btn-so" onclick="doSignOut()">sign out</button>
+      </div>
+    </div>
+  </div>
+  <div class="results-inner" id="results-inner"></div>
+</div>
+
+<!-- ════════════════ LEADERBOARD ════════════════ -->
+<div id="screen-leaderboard" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<em>.</em>RANK</div>
+    <div class="masthead-right">
+      <div class="user-pill">
+        <div class="pill-av" id="lb-av">?</div>
+        <span id="lb-un">—</span>
+        <button class="btn-so" onclick="doSignOut()">sign out</button>
+      </div>
+    </div>
+  </div>
+  <div class="lb-inner">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px;">
+      <div>
+        <div class="lb-headline">The <span>Verdict</span><br>Goes Public. 🔥</div>
+        <div class="lb-sub">Auto-refreshes · Shame is eternal</div>
+      </div>
+      <!-- leaderboard battery -->
+      <div id="lb-battery-wrap" style="flex-shrink:0"></div>
+    </div>
+
+    <div class="stats-strip" id="lb-stats"></div>
+
+    <div class="tab-strip">
+      <button class="tab-pill active" id="tab-top" onclick="setTab('top')">🏆 Top Dogs</button>
+      <button class="tab-pill shame-t" id="tab-shame" onclick="setTab('shame')">💀 Shame Wall</button>
+      <button class="tab-pill reverse-t" id="tab-reverse" onclick="setTab('reverse')">🔄 Reverse Board</button>
+      <button class="tab-pill excuse-t" id="tab-excuse" onclick="setTab('excuse')">🤥 Excuse Board</button>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="lb-actions">
+      <button class="btn-retake-lb wiggle" onclick="startQuiz()">🎯 Retake Assessment</button>
+      <button class="btn-refresh-lb" onclick="renderLeaderboard()">⟳ Refresh</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading" id="loading">
+  <div class="battery-mascot">
+    <svg width="70" height="88" viewBox="0 0 70 88">
+      <rect x="5" y="15" width="60" height="68" rx="10" fill="#FFE500" stroke="#0d0d0d" stroke-width="3"/>
+      <rect x="23" y="5" width="24" height="14" rx="5" fill="#FFE500" stroke="#0d0d0d" stroke-width="3"/>
+      <rect x="11" y="22" width="48" height="54" rx="7" fill="#00FF88" opacity="0.4" id="load-fill"/>
+      <circle cx="35" cy="49" r="8" fill="#0d0d0d"/>
+      <circle cx="35" cy="49" r="3" fill="white"/>
+      <text x="27" y="43" font-size="13" fill="#0d0d0d">⚡</text>
+    </svg>
+  </div>
+  <div class="loading-text" id="loading-text">CALCULATING YOUR DESTINY…</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DATA
+// ════════════════════════════════════════════════
+const QUESTIONS = [
+  { id:'q1', tag:'FOCUS TIME', color:'#00F5FF',
+    text:'How many hours of focused, distraction-free work did you actually do today?',
+    opts:['0 hours — I opened my laptop and panicked','1–2 hours','3–4 hours','5–6 hours','7+ hours — I am inhuman'],
+    w:[0,15,30,45,60] },
+  { id:'q2', tag:'TASK SLAYER', color:'#00FF88',
+    text:'How many tasks from your to-do list did you actually complete?',
+    opts:['None — I do not have a list','Had a list. Stared at it.','1–2 tasks — technically progress','About half','Every single one — I am a machine'],
+    w:[0,2,15,30,50] },
+  { id:'q3', tag:'DISTRACTION', color:'#FF6B00',
+    text:'How often did you check social media or random sites during work hours?',
+    opts:['Constantly — every 5 mins','Every 30 mins or so','Maybe once an hour','Just a couple of times','Zero times. Monk mode activated.'],
+    w:[0,8,18,28,40] },
+  { id:'q4', tag:'DEADLINES', color:'#FF3CAC',
+    text:'Did you meet any deadlines or commitments today?',
+    opts:['Missed everything','Missed most — sent apology emails','Mixed bag — some wins, some sins','Met most of them','Crushed every single one'],
+    w:[0,10,20,35,50] },
+  { id:'q5', tag:'ENERGY', color:'#CCFF00',
+    text:'How would you rate your energy and focus throughout the day?',
+    opts:['Basically in hibernate mode','Sluggish — everything felt heavy','Average — had my dips','Mostly sharp with a few wobbles','PEAK PERFORMANCE all day long'],
+    w:[0,10,22,35,50] },
+  { id:'q6', tag:'MEETINGS', color:'#7B2FFF',
+    text:'How many meetings or calls did you actually prepare for — not wing it?',
+    opts:['Had zero meetings (lucky you)','Winged every single one','Prepped for exactly one','Prepped for most of them','Fully prepared for every single one'],
+    w:[20,0,15,30,40] },
+  { id:'q7', tag:'LEARNING', color:'#FFE500',
+    text:'Did you learn or improve a skill intentionally today?',
+    opts:['Nope — same person as yesterday','Accidentally saw something useful','Read or watched relevant content','Practiced and actually applied it','Full dedicated session + applied it'],
+    w:[0,8,18,30,40] },
+  { id:'q8', tag:'PROCRASTINATION', color:'#FF2D55',
+    text:'How many times did you procrastinate on something you KNEW you had to do?',
+    opts:['Procrastinated absolutely everything','5+ times — a personal record','3–4 times','Once or twice — could be worse','Zero. I am built genuinely different.'],
+    w:[0,5,15,28,40] },
+  { id:'q9', tag:'DEEP WORK', color:'#00F5FF',
+    text:'Did you hit a real deep work state — genuine flow, full immersion?',
+    opts:['Flow? Is that a yoga thing?','Almost got there but my phone vibrated','Had a few glorious minutes of it','Yes — a solid hour of it','Yes — multiple flow sessions today'],
+    w:[0,8,18,28,40] },
+  { id:'q_excuse', tag:'THE EXCUSE 🤥', color:'#FF6B00', isExcuse:true,
+    text:"And finally — what excuse have you been telling yourself for not being more productive?",
+    opts:[
+      '"I work better under pressure" (you absolutely do not)',
+      '"I\'m a night owl" (it is currently 3pm)',
+      '"I need the perfect setup before I can start"',
+      '"I\'m too tired / burned out / Mercury is in retrograde"',
+      '"I\'ll start fresh tomorrow — for real this time"',
+      '"I have too many meetings to get anything done"',
+      '"I\'m waiting for inspiration to strike"',
+      '"I have no excuse. I just slacked. I own it."'
+    ],
+    w:[5,5,5,10,3,8,3,20] }
+];
+
+const MAX_RAW = QUESTIONS.filter(q=>!q.isExcuse).reduce((s,q)=>s+Math.max(...q.w),0);
+const MAX_EXC = Math.max(...QUESTIONS.find(q=>q.isExcuse).w);
+
+const ROASTS = [
+  "Congratulations. You have achieved the productivity of a decorative throw pillow — present, soft, and entirely useless.",
+  "Remarkable. Even a screensaver manages to move. You, apparently, could not.",
+  "Your ancestors crossed oceans and built civilisations. You opened twelve tabs and closed them all.",
+  "Scientists have found more measurable output in a jar of expired mayonnaise.",
+  "Your to-do list is filing for emancipation. It refuses to be ignored another day.",
+  "The WiFi router in your home has done more computing today than you have.",
+  "Bravely, boldly, aggressively — you accomplished nothing. That takes a special kind of commitment.",
+  "I have seen potted cacti produce more results today, and they require watering once a month.",
+  "Even your browser's autofill has done more meaningful work than you.",
+  "A participation trophy has been awarded. It is very small."
+];
+const POMPOUS = [
+  "Oh how delightfully audacious — a high score, yet here you are, still among the common folk. Does the altitude of your achievement give you nosebleeds?",
+  "Ah, a top performer. How terribly exhausting it must be, carrying the weight of everyone else's mediocrity on those capable shoulders.",
+  "Your score is commendable, in the way a butler might describe a slightly-above-average soufflé. We expected nothing less. We received precisely that.",
+  "You have performed admirably within the narrow confines of what the rest of us consider basic competence. Bravo.",
+  "One can only imagine the thrilling anecdote this will make at your next dinner party among equally productive and equally dull acquaintances."
+];
+const INSULTS = [
+  "functioning at the speed of continental drift",
+  "technically employed, existentially absent",
+  "the 404 of human resources",
+  "peer-reviewed proof that effort is optional",
+  "a cautionary tale with a LinkedIn profile",
+  "the loading screen nobody asked for",
+  "completing tasks at geological pace",
+  "a masterclass in aggressive non-delivery",
+  "professionally between tasks since 9am",
+  "the human equivalent of a 1% battery warning"
+];
+
+// Mock leaderboard
+const MOCK = [
+  { id:'u1', userId:'u1', username:'ProductivityGod', pct:91, excusePct:80, excuseBonus:0, insult:null, roast:POMPOUS[0], isHighScoreLowEffort:true, submittedAt: new Date(Date.now()-3600000).toISOString() },
+  { id:'u2', userId:'u2', username:'GrindSetGo',      pct:79, excusePct:50, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-7200000).toISOString() },
+  { id:'u3', userId:'u3', username:'AlmostThere',     pct:62, excusePct:25, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-1800000).toISOString() },
+  { id:'u4', userId:'u4', username:'MondayEnergy',    pct:44, excusePct:15, excuseBonus:10, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-900000).toISOString() },
+  { id:'u5', userId:'u5', username:'DeepInMeetings',  pct:31, excusePct:40, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-600000).toISOString() },
+  { id:'u6', userId:'u6', username:'TomorrowForSure', pct:14, excusePct:15, excuseBonus:10, insult:INSULTS[0], roast:ROASTS[0], isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-300000).toISOString() },
+  { id:'u7', userId:'u7', username:'NightOwl99',      pct:6,  excusePct:25, excuseBonus:0, insult:INSULTS[9], roast:ROASTS[3], isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-120000).toISOString() },
+];
+
+// ════════════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════════════
+let currentUser = null;
+let answers     = {};
+let currentQ    = 0;
+let lastResult  = null;
+let currentTab  = 'top';
+let lbTimer     = null;
+const LTRS      = 'ABCDEFGHIJ';
+
+// ════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════
+const $  = id => document.getElementById(id);
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function timeAgo(iso){ const d=Math.floor((Date.now()-new Date(iso))/1000); if(d<60)return d+'s ago'; if(d<3600)return Math.floor(d/60)+'m ago'; if(d<86400)return Math.floor(d/3600)+'h ago'; return Math.floor(d/86400)+'d ago'; }
+
+function barColor(p){
+  if(p>=80) return 'linear-gradient(90deg,#00FF88,#00F5FF)';
+  if(p>=60) return 'linear-gradient(90deg,#CCFF00,#00FF88)';
+  if(p>=40) return 'linear-gradient(90deg,#FFE500,#CCFF00)';
+  if(p>=20) return 'linear-gradient(90deg,#FF6B00,#FFE500)';
+  return 'linear-gradient(90deg,#FF2D55,#FF6B00)';
+}
+
+function scoreLabel(p){
+  if(p>=85) return '🔥 EXCEPTIONAL';
+  if(p>=70) return '⚡ COMMENDABLE';
+  if(p>=50) return '👍 ADEQUATE';
+  if(p>=35) return '😬 CONCERNING';
+  if(p>=20) return '🚨 ALARMING';
+  return '💀 CATASTROPHIC';
+}
+
+function toast(msg, type=''){
+  const t=$('toast'); t.textContent=msg;
+  t.className='toast show '+(type||'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3600);
+}
+
+function loading(v, msg='CALCULATING YOUR DESTINY…'){
+  $('loading').className=v?'loading show':'loading';
+  if($('loading-text')) $('loading-text').textContent=msg;
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function setChips(){
+  if(!currentUser)return;
+  const i=currentUser.username[0].toUpperCase();
+  ['q','r','lb'].forEach(p=>{ const a=$(p+'-av'), u=$(p+'-un'); if(a)a.textContent=i; if(u)u.textContent=currentUser.username; });
+}
+
+// ════════════════════════════════════════════════
+//  SCORING
+// ════════════════════════════════════════════════
+function computeScore(ans){
+  let raw=0, excW=0;
+  QUESTIONS.forEach(q=>{ const idx=ans[q.id]; if(idx==null||idx===undefined)return; const w=q.w[idx]||0; if(q.isExcuse)excW=w; else raw+=w; });
+  let pct=Math.min(100,Math.round((raw/MAX_RAW)*100));
+  const excusePct=Math.round((excW/MAX_EXC)*100);
+  let excuseBonus=0;
+  if(excusePct<20){ pct=Math.min(100,pct+10); excuseBonus=10; }
+  const isHighScoreLowEffort=pct>=70&&excusePct<20;
+  const roast=pct<20?rand(ROASTS):(isHighScoreLowEffort?rand(POMPOUS):null);
+  const insult=pct<20?rand(INSULTS):null;
+  return { pct, excusePct, excuseBonus, roast, insult, isHighScoreLowEffort };
+}
+
+// ════════════════════════════════════════════════
+//  BATTERY SVG BUILDER
+// ════════════════════════════════════════════════
+function buildBattery(pct, size=100, face=true){
+  const w=size, h=size*1.3;
+  const bw=w*0.86, bh=h*0.72;
+  const bx=(w-bw)/2, by=h*0.18;
+  const capW=bw*0.35, capH=h*0.13;
+  const capX=(w-capW)/2, capY=h*0.06;
+  const fillColor=pct>=60?'#00FF88':pct>=30?'#FFE500':pct>=15?'#FF6B00':'#FF2D55';
+  const fillH=Math.max(4, (bh-8)*pct/100);
+  const fillY=by+bh-4-fillH;
+  const eyeY=by+bh*0.42, ex1=bx+bw*0.28, ex2=bx+bw*0.72, er=bw*0.1;
+  const mouthY=by+bh*0.68;
+  const moodPath=pct<20
+    ?`M ${bx+bw*0.3} ${mouthY+5} Q ${bx+bw*0.5} ${mouthY-4} ${bx+bw*0.7} ${mouthY+5}`
+    :pct<50
+    ?`M ${bx+bw*0.3} ${mouthY} L ${bx+bw*0.7} ${mouthY}`
+    :`M ${bx+bw*0.3} ${mouthY-2} Q ${bx+bw*0.5} ${mouthY+9} ${bx+bw*0.7} ${mouthY-2}`;
+  const boltX=bx+bw*0.38, boltY=by+bh*0.12;
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="${capX}" y="${capY}" width="${capW}" height="${capH+2}" rx="${capH*0.45}" fill="#c0c0c0" stroke="#0d0d0d" stroke-width="${size*0.035}"/>
+    <rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${bw*0.13}" fill="#f0f0f0" stroke="#0d0d0d" stroke-width="${size*0.04}"/>
+    <rect x="${bx+4}" y="${fillY}" width="${bw-8}" height="${fillH}" rx="${bw*0.09}" fill="${fillColor}"/>
+    ${face?`
+    <circle cx="${ex1}" cy="${eyeY}" r="${er}" fill="#0d0d0d"/>
+    <circle cx="${ex2}" cy="${eyeY}" r="${er}" fill="#0d0d0d"/>
+    <circle cx="${ex1+er*0.35}" cy="${eyeY-er*0.35}" r="${er*0.35}" fill="white"/>
+    <circle cx="${ex2+er*0.35}" cy="${eyeY-er*0.35}" r="${er*0.35}" fill="white"/>
+    <path d="${moodPath}" stroke="#0d0d0d" stroke-width="${size*0.03}" fill="none" stroke-linecap="round"/>
+    <path d="M ${boltX} ${boltY+bh*0.08} L ${boltX+bw*0.12} ${boltY} L ${boltX+bw*0.06} ${boltY+bh*0.05} L ${boltX+bw*0.18} ${boltY-bh*0.05}" stroke="#0d0d0d" stroke-width="${size*0.025}" fill="none" stroke-linejoin="round"/>
+    `:''}
+  </svg>`;
+}
+
+// Update mini battery in quiz
+function updateMiniBattery(pct){
+  const wrap=$('mini-batt');
+  if(wrap) wrap.innerHTML=buildBattery(pct, 52, false);
+}
+
+// ════════════════════════════════════════════════
+//  CONFETTI
+// ════════════════════════════════════════════════
+function burst(count=40){
+  const colors=['#FFE500','#FF3CAC','#00F5FF','#00FF88','#FF6B00','#CCFF00','#7B2FFF'];
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='confetti-piece';
+    el.style.cssText=`
+      left:${Math.random()*100}vw;
+      top:-20px;
+      background:${rand(colors)};
+      width:${8+Math.random()*12}px;
+      height:${8+Math.random()*12}px;
+      border-radius:${Math.random()>0.5?'50%':'2px'};
+      animation-duration:${1.5+Math.random()*2}s;
+      animation-delay:${Math.random()*0.5}s;
+    `;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 4000);
+  }
+}
+
+// ════════════════════════════════════════════════
+//  AUTH (preview mode — no server)
+// ════════════════════════════════════════════════
+function doSignIn(){
+  const u=$('si-u').value.trim(), p=$('si-p').value;
+  const err=$('si-err'), btn=$('si-btn');
+  err.classList.remove('show');
+  if(u.length<2){ err.textContent='⚠️ Username needs at least 2 characters!'; err.classList.add('show'); return; }
+  if(p.length<4){ err.textContent='⚠️ Password needs at least 4 characters!'; err.classList.add('show'); return; }
+  btn.disabled=true; btn.textContent='Hold on…';
+  setTimeout(()=>{
+    currentUser={ id:'you-'+Date.now(), username:u };
+    setChips(); startQuiz();
+    toast('Welcome, '+u+'! Time to face the tribunal. 🔥','good');
+    btn.disabled=false; btn.textContent='⚡ Enter the Tribunal!';
+  }, 600);
+}
+
+function doSignOut(){
+  currentUser=null; answers={}; currentQ=0; lastResult=null;
+  clearInterval(lbTimer); show('screen-signin');
+}
+
+// ════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════
+function startQuiz(){ answers={}; currentQ=0; renderQ(); show('screen-quiz'); }
+
+const Q_COLORS=['#00F5FF','#00FF88','#FF6B00','#FF3CAC','#CCFF00','#7B2FFF','#FFE500','#FF2D55','#00F5FF','#FF6B00'];
+
+function renderQ(){
+  const q=QUESTIONS[currentQ], total=QUESTIONS.length;
+  const prog=Math.round((currentQ/total)*100);
+  $('prog-fill').style.width=prog+'%';
+  $('prog-lbl').textContent='Question '+(currentQ+1)+' of '+total+' — '+Math.round(prog)+'% done';
+  updateMiniBattery(prog);
+
+  const sel=answers[q.id];
+  const isExc=!!q.isExcuse;
+  const color=q.color||Q_COLORS[currentQ]||'#00F5FF';
+
+  $('q-area').innerHTML=`
+    <div class="q-card${isExc?' excuse':''}" style="--q-color:${color}">
+      <div class="q-tag" style="background:${color}">${q.tag}</div>
+      <div class="q-text">${esc(q.text)}</div>
+      <div class="q-options">
+        ${q.opts.map((o,i)=>`
+          <button class="opt-btn${sel===i?' sel':''}" onclick="selOpt(${i})">
+            <span class="opt-ltr">${LTRS[i]}</span>
+            ${esc(o)}
+          </button>`).join('')}
+      </div>
+    </div>`;
+
+  $('btn-prev').style.display=currentQ>0?'block':'none';
+  $('btn-next').disabled=(sel===undefined||sel===null);
+  $('btn-next').textContent=currentQ===total-1?'🎯 Submit & Get My Verdict!':'Next →';
+}
+
+function selOpt(i){
+  answers[QUESTIONS[currentQ].id]=i;
+  // micro-feedback
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach((b,idx)=>{ b.classList.toggle('sel',idx===i); });
+  $('btn-next').disabled=false;
+  // tiny bounce on selected
+  btns[i] && btns[i].animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:200});
+}
+
+function nextQ(){
+  if(answers[QUESTIONS[currentQ].id]===undefined){ toast('Pick an option first! 👆'); return; }
+  if(currentQ<QUESTIONS.length-1){ currentQ++; renderQ(); $('quiz-inner').scrollIntoView({behavior:'smooth',block:'start'}); }
+  else submitQuiz();
+}
+
+function prevQ(){ if(currentQ>0){ currentQ--; renderQ(); } }
+
+function submitQuiz(){
+  loading(true,'CRUNCHING THE NUMBERS… 🔢');
+  setTimeout(()=>{
+    const res=computeScore(answers);
+    lastResult=res;
+    const existIdx=MOCK.findIndex(u=>u.userId===currentUser.id);
+    const entry={...res,id:currentUser.id,userId:currentUser.id,username:currentUser.username,submittedAt:new Date().toISOString()};
+    if(existIdx>=0) MOCK[existIdx]=entry; else MOCK.push(entry);
+    renderResults(res);
+    show('screen-results');
+    loading(false);
+    if(res.pct>=70) burst(60);
+    else if(res.pct>=40) burst(20);
+  },1200);
+}
+
+// ════════════════════════════════════════════════
+//  RESULTS
+// ════════════════════════════════════════════════
+function renderResults(r){
+  const p=r.pct;
+  const cardClass=p<20?'bad':r.isHighScoreLowEffort?'pompous':'';
+  const label=scoreLabel(p);
+  const battSvg=buildBattery(p, 90, true);
+  const roastClass=r.isHighScoreLowEffort?'roast-bubble pompous':'roast-bubble';
+  const roastAttr=r.isHighScoreLowEffort?'— THE TRIBUNAL, ON HIGH ACHIEVERS':'— OFFICIAL TRIBUNAL ROAST';
+
+  // pick cartoon figure based on score
+  const figure = p>=70
+    ? `<div style="font-size:56px;text-align:center;animation:float 2s ease-in-out infinite;">🦸</div>`
+    : p>=40
+    ? `<div style="font-size:56px;text-align:center;animation:float 2.5s ease-in-out infinite;">🧑‍💻</div>`
+    : p>=20
+    ? `<div style="font-size:56px;text-align:center;animation:float 3s ease-in-out infinite;">😩</div>`
+    : `<div style="font-size:56px;text-align:center;animation:shameWiggle 1.5s ease infinite;">🪱</div>`;
+
+  $('results-inner').innerHTML=`
+    <div class="verdict-card ${cardClass}">
+      <div class="verdict-title">YOUR OFFICIAL VERDICT</div>
+      ${figure}
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin:8px 0;">
+        <div style="flex-shrink:0">${battSvg}</div>
+        <div>
+          <div class="big-score">${p}</div>
+          <div class="score-slash">/ 100</div>
+        </div>
+      </div>
+      <div class="verdict-label-badge">${label}</div>
+      ${r.roast?`<div class="${roastClass}">"${esc(r.roast)}"<span class="roast-attr">${roastAttr}</span></div>`:''}
+    </div>
+
+    <div class="section-tag">SCORE BREAKDOWN</div>
+    <div class="bd-row">
+      <div class="bd-chip"><span class="bd-val">${p}%</span><span class="bd-lbl">Final Score</span></div>
+      <div class="bd-chip"><span class="bd-val">${r.excusePct}%</span><span class="bd-lbl">Excuse Honesty</span></div>
+      <div class="bd-chip"><span class="bd-val bonus">+${r.excuseBonus}</span><span class="bd-lbl">Honesty Bonus</span></div>
+    </div>
+
+    ${r.insult?`<div class="insult-strip">💀 Your public designation: <em>${esc(r.insult)}</em></div>`:''}
+
+    <button class="btn-go-lb wiggle" onclick="goLB()">📊 See the Public Leaderboard →</button>
+    <button class="btn-retake2" onclick="startQuiz()">🔄 Retake Assessment</button>
+  `;
+}
+
+// ════════════════════════════════════════════════
+//  LEADERBOARD
+// ════════════════════════════════════════════════
+function goLB(){
+  show('screen-leaderboard');
+  // lb battery
+  const allPcts=MOCK.map(e=>e.pct);
+  const avgPct=allPcts.length?Math.round(allPcts.reduce((a,b)=>a+b,0)/allPcts.length):50;
+  const lbBatt=$('lb-battery-wrap');
+  if(lbBatt) lbBatt.innerHTML=`<div class="battery-mascot">${buildBattery(avgPct,80,true)}</div>`;
+  renderLeaderboard();
+  clearInterval(lbTimer);
+  lbTimer=setInterval(renderLeaderboard,20000);
+}
+
+function setTab(t){
+  currentTab=t;
+  ['top','shame','reverse','excuse'].forEach(x=>{ const el=$('tab-'+x); if(el)el.classList.toggle('active',x===t); });
+  renderLeaderboard();
+}
+
+function renderLeaderboard(){
+  const sorted=[...MOCK].sort((a,b)=>{
+    if(currentTab==='top')    return b.pct-a.pct;
+    if(currentTab==='shame')  return a.pct-b.pct;
+    if(currentTab==='reverse')return a.pct-b.pct;  // lowest-first (same as shame but different UI)
+    return a.excusePct-b.excusePct;
+  });
+
+  const total=sorted.length;
+  const avg=total?Math.round(sorted.reduce((s,e)=>s+e.pct,0)/total):null;
+  const shame=sorted.filter(e=>e.pct<20).length;
+
+  $('lb-stats').innerHTML=`
+    <div class="stat-chip" style="background:var(--cyan)"><span class="stat-val">${total}</span><span class="stat-lbl">Contestants</span></div>
+    <div class="stat-chip" style="background:var(--green)"><span class="stat-val">${avg!==null?avg+'%':'—'}</span><span class="stat-lbl">Avg Score</span></div>
+    <div class="stat-chip shame-stat"><span class="stat-val">${shame}</span><span class="stat-lbl">Shame Zone</span></div>
+    <div class="stat-chip" style="background:var(--yellow)"><span class="stat-val">${total}</span><span class="stat-lbl">Registered</span></div>`;
+
+  if(!sorted.length){
+    $('board').innerHTML='<div class="empty-board">🌚 NO ENTRIES YET<br>Be the first to submit!</div>';
+    return;
+  }
+
+  $('board').innerHTML=sorted.map((e,i)=>{
+    const isYou=currentUser&&e.userId===currentUser.id;
+    const r1=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const shCl=e.pct<20?'shame-e':'';
+    const poCl=(!shCl&&e.isHighScoreLowEffort)?'pomp-e':'';
+    const youCl=isYou?'you-e':'';
+    const medal=['🥇','🥈','🥉'][i]||null;
+
+    // rank display — for reverse board flip medals
+    let rnkDisplay;
+    if(currentTab==='reverse'){
+      rnkDisplay=i===0?`<div style="font-size:22px">🐌</div>`:i===1?`<div style="font-size:22px">🦥</div>`:i===2?`<div style="font-size:22px">😴</div>`:`<div style="font-family:'Fredoka One',cursive;font-size:18px;text-align:center">#${i+1}</div>`;
+    } else {
+      rnkDisplay=medal?`<div style="font-size:22px">${medal}</div>`:`<div style="font-family:'Fredoka One',cursive;font-size:20px;text-align:center">${i+1}</div>`;
+    }
+
+    const excInfo=currentTab==='excuse'
+      ?`<div class="entry-insult">🤥 Honesty: ${e.excusePct}%${e.excuseBonus>0?' (+'+e.excuseBonus+' pts bonus!)':''}</div>`
+      :(e.insult?`<div class="entry-insult">💀 ${esc(e.insult)}</div>`:'');
+
+    let snippet='';
+    if(e.roast&&e.pct<20) snippet=`<div class="entry-roast">"${esc(e.roast.substring(0,70))}…"</div>`;
+    else if(e.roast&&e.isHighScoreLowEffort) snippet=`<div class="entry-roast" style="color:var(--purple);font-style:italic">"${esc(e.roast.substring(0,70))}…"</div>`;
+
+    return `
+      <div class="board-entry ${r1} ${shCl} ${poCl} ${youCl}" style="animation-delay:${i*.05}s">
+        <div style="text-align:center">${rnkDisplay}</div>
+        <div style="min-width:0">
+          <div class="entry-name">${esc(e.username)}${isYou?'<span class="you-badge">YOU</span>':''}</div>
+          ${excInfo}${snippet}
+          <div class="entry-time">${timeAgo(e.submittedAt)}</div>
+        </div>
+        <div class="bar-col">
+          <div class="bar-bg"><div class="bar-fill" style="width:${e.pct}%;background:${barColor(e.pct)}"></div></div>
+          <div class="bar-sub">${scoreLabel(e.pct).replace(/^[^ ]+ /,'')}</div>
+          ${e.excuseBonus>0?`<div class="bonus-tag">+${e.excuseBonus} HONESTY BONUS</div>`:''}
+        </div>
+        <div class="pct-col">${e.pct}%</div>
+      </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  KEYBOARD
+// ════════════════════════════════════════════════
+document.addEventListener('keydown', e=>{
+  if($('screen-signin').classList.contains('active')&&e.key==='Enter'){ doSignIn(); return; }
+  if($('screen-quiz').classList.contains('active')){
+    const n=parseInt(e.key);
+    if(!isNaN(n)&&n>=1&&n<=9){ selOpt(n-1); return; }
+    const idx=LTRS.indexOf(e.key.toUpperCase());
+    if(idx>=0){ selOpt(idx); return; }
+    if(e.key==='Enter'&&!$('btn-next').disabled) nextQ();
+    if(e.key==='ArrowLeft') prevQ();
+  }
+});
+</script>
+</body>
+</html>
