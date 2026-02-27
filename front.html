@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🎮 Productivity War Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #141e30, #243b55);
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            padding: 20px;
+            font-size: 28px;
+        }
+
+        .card {
+            background: #1f2a40;
+            padding: 20px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 450px;
+            border-radius: 20px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.6);
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            margin: 8px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            margin: 6px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ff9800;
+            color: black;
+            transform: scale(1.05);
+        }
+
+        .mcq button {
+            display: block;
+            width: 90%;
+            margin: 6px auto;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+        }
+
+        .leaderboard {
+            margin-top: 10px;
+            background: #16213e;
+            padding: 10px;
+            border-radius: 15px;
+        }
+
+        .insult {
+            color: #ff4d4d;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .risk {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h1>🎮 Productivity War Game</h1>
+
+<div class="card">
+
+<input type="text" id="username" placeholder="Enter Username">
+
+<h3>📅 Planned Hours</h3>
+<input type="number" id="planned" min="0" step="0.1">
+
+<h3>⏳ Actual Hours Worked</h3>
+<input type="number" id="actual" min="0" step="0.1">
+
+<h3>🤥 Excuses You Told Yourself</h3>
+
+<div class="mcq">
+    <button onclick="addExcuse()">I was tired 😴</button>
+    <button onclick="addExcuse()">Just 5 mins break 📱</button>
+    <button onclick="addExcuse()">I'll do it later ⏳</button>
+    <button onclick="addExcuse()">Tomorrow is better 😅</button>
+    <button onclick="addExcuse()">Mood not right 🎵</button>
+</div>
+
+<p>Excuses Selected: <span id="excuseCount">0</span></p>
+
+<button onclick="submitData()">🔥 Calculate Score</button>
+
+</div>
+
+<div id="result"></div>
+
+<audio id="lowAudio" src="https://www.soundjay.com/button/beep-10.mp3"></audio>
+<audio id="highAudio" src="https://www.soundjay.com/button/beep-07.mp3"></audio>
+
+<script>
+let excuseCount = 0;
+
+function addExcuse() {
+    excuseCount++;
+    document.getElementById("excuseCount").innerText = excuseCount;
+}
+
+function submitData() {
+
+    const username = document.getElementById("username").value;
+    const planned = document.getElementById("planned").value;
+    const actual = document.getElementById("actual").value;
+
+    fetch("/submit", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            username: username,
+            planned_hours: planned,
+            actual_hours: actual,
+            excuse_count: excuseCount
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        let audioLow = document.getElementById("lowAudio");
+        let audioHigh = document.getElementById("highAudio");
+
+        if (data.productivity < 30) {
+            audioLow.play();
+        } else {
+            audioHigh.play();
+        }
+
+        let resultHTML = `
+        <h2>🎯 Productivity: ${data.productivity}%</h2>
+        <h3>😵 Distracted Time: ${data.distracted}%</h3>
+        <h3>🤥 Excuse Score: ${data.excuse_score}%</h3>
+        <div class="risk">${data.risk}</div>
+        <div class="insult">${data.insult}</div>
+        <div class="leaderboard">
+        <h3>🏆 Leaderboard</h3>
+        `;
+
+        data.leaderboard.forEach(player => {
+            resultHTML += `<p>${player.username} - ${player.productivity}%</p>`;
+        });
+
+        resultHTML += `</div>`;
+
+        document.getElementById("result").innerHTML = resultHTML;
+
+        excuseCount = 0;
+        document.getElementById("excuseCount").innerText = excuseCount;
+    });
+}
+</script>
+
+</body>
+</html>

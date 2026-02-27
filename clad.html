@@ -1,0 +1,626 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRIND.RANK — Combined Edition</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;600&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --border: #1e1e2e;
+    --accent: #ff3c5f;
+    --gold: #ffd700;
+    --silver: #c0c0c0;
+    --bronze: #cd7f32;
+    --green: #00ff88;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255,60,95,0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,255,136,0.06), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  header { text-align: center; margin-bottom: 48px; animation: fadeDown 0.6s ease; }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 10vw, 88px);
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, #ff3c5f, #ff8c42);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  header p {
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--muted);
+    margin-right: 6px;
+    vertical-align: middle;
+    transition: background 0.3s;
+  }
+  .status-dot.online  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .status-dot.offline { background: var(--accent); }
+
+  /* INPUT */
+  .input-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .input-card h2 {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+  }
+
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  @media (max-width: 500px) { .input-row { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .field input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus { border-color: var(--accent); }
+  .field input[type="range"] { padding: 4px 0; accent-color: var(--accent); cursor: pointer; }
+
+  .btn-add {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+
+  .btn-add:hover:not(:disabled) {
+    background: #ff5575;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,60,95,0.35);
+  }
+
+  .btn-add:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* STATS */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.5s ease 0.15s both;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-box .stat-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-box .stat-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* BOARD */
+  .board-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    animation: fadeUp 0.5s ease 0.2s both;
+  }
+
+  .board-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 4px;
+  }
+
+  .board-actions { display: flex; gap: 8px; align-items: center; }
+
+  .btn-refresh {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-refresh:hover { border-color: var(--green); color: var(--green); }
+
+  .btn-nuke {
+    background: none;
+    border: 1px solid rgba(255,60,95,0.3);
+    color: rgba(255,60,95,0.6);
+    border-radius: 7px;
+    padding: 6px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-nuke:hover { border-color: var(--accent); color: var(--accent); }
+
+  .leaderboard { display: flex; flex-direction: column; gap: 10px; }
+
+  .entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    transition: all 0.3s ease;
+    animation: slideIn 0.4s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .entry::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--entry-color, var(--border));
+    border-radius: 3px 0 0 3px;
+  }
+
+  .entry:hover { border-color: rgba(255,255,255,0.1); transform: translateX(2px); }
+  .entry.rank-1 { --entry-color: var(--gold);   border-color: rgba(255,215,0,0.2); }
+  .entry.rank-2 { --entry-color: var(--silver); }
+  .entry.rank-3 { --entry-color: var(--bronze); }
+  .entry.shame  {
+    --entry-color: var(--accent);
+    border-color: rgba(255,60,95,0.2);
+    animation: shame-pulse 2s ease infinite;
+  }
+
+  @keyframes shame-pulse {
+    0%,100% { box-shadow: none; }
+    50%      { box-shadow: 0 0 16px rgba(255,60,95,0.2); }
+  }
+
+  .rank-badge {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--muted);
+    text-align: center;
+  }
+  .entry.rank-1 .rank-badge { color: var(--gold); }
+  .entry.rank-2 .rank-badge { color: var(--silver); }
+  .entry.rank-3 .rank-badge { color: var(--bronze); }
+
+  .name-area .name {
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .insult {
+    font-size: 11px;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    margin-top: 3px;
+  }
+
+  .bar-area { width: 120px; }
+  .bar-bg   { background: var(--bg); border-radius: 99px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(0.22,1,0.36,1); }
+
+  .pct-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    min-width: 54px;
+    text-align: right;
+  }
+  .entry.shame .pct-label { color: var(--accent); }
+
+  .ts-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s;
+    line-height: 1;
+  }
+  .delete-btn:hover { color: var(--accent); }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+  .empty-state .big { font-size: 40px; margin-bottom: 12px; display: block; }
+
+  .loading {
+    text-align: center;
+    padding: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    animation: blink 1s ease infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 100;
+    max-width: 280px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.shame-toast { border-color: rgba(255,60,95,0.4); color: var(--accent); }
+  .toast.error-toast { border-color: rgba(255,60,95,0.6); color: #ff8080; }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp   { from{opacity:0;transform:translateY(16px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes slideIn  { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>GRIND.RANK</h1>
+    <p>
+      <span class="status-dot" id="statusDot"></span>
+      <span id="statusText">connecting...</span>
+      &nbsp;·&nbsp; Public Productivity Leaderboard
+    </p>
+  </header>
+
+  <!-- INPUT -->
+  <div class="input-card">
+    <h2>// Log Your Grind</h2>
+    <div class="input-row">
+      <div class="field">
+        <label>Name / Handle</label>
+        <input type="text" id="nameInput" placeholder="e.g. xX_CodeMonkey_Xx" maxlength="24" />
+      </div>
+      <div class="field">
+        <label>Productivity — <span id="rangeDisplay">50</span>%</label>
+        <input type="range" id="pctInput" min="0" max="100" value="50"
+          oninput="document.getElementById('rangeDisplay').textContent=this.value" />
+      </div>
+      <button class="btn-add" id="addBtn" onclick="addEntry()">+ LOG IT</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-box">
+      <span class="stat-val" id="statTotal">—</span>
+      <span class="stat-label">Competitors</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val" id="statAvg">—</span>
+      <span class="stat-label">Avg Score</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val" id="statShame">—</span>
+      <span class="stat-label">In Shame Zone</span>
+    </div>
+  </div>
+
+  <!-- BOARD -->
+  <div class="board-header">
+    <h2>LEADERBOARD</h2>
+    <div class="board-actions">
+      <button class="btn-refresh" onclick="loadEntries()">⟳ REFRESH</button>
+      <button class="btn-nuke" onclick="nukeAll()">✕ CLEAR ALL</button>
+    </div>
+  </div>
+
+  <div class="leaderboard" id="leaderboard">
+    <div class="loading">LOADING LEADERBOARD...</div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Config ────────────────────────────────────────────────
+  const API = 'http://localhost:3000/api';
+
+  // ── Helpers ───────────────────────────────────────────────
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function getBarColor(pct) {
+    if (pct >= 80) return 'linear-gradient(90deg,#00ff88,#00d4aa)';
+    if (pct >= 50) return 'linear-gradient(90deg,#ffd700,#ff8c42)';
+    if (pct >= 20) return 'linear-gradient(90deg,#ff8c42,#ff5050)';
+    return 'linear-gradient(90deg,#ff3c5f,#cc0033)';
+  }
+
+  function timeAgo(iso) {
+    const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
+    if (diff < 60)   return `${diff}s ago`;
+    if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+    if (diff < 86400)return `${Math.floor(diff/3600)}h ago`;
+    return `${Math.floor(diff/86400)}d ago`;
+  }
+
+  function showToast(msg, type = '') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    clearTimeout(t._t);
+    t._t = setTimeout(() => t.className = 'toast', 3200);
+  }
+
+  function setStatus(online) {
+    const dot  = document.getElementById('statusDot');
+    const text = document.getElementById('statusText');
+    if (online) {
+      dot.className = 'status-dot online';
+      text.textContent = 'server online';
+    } else {
+      dot.className = 'status-dot offline';
+      text.textContent = 'server offline';
+    }
+  }
+
+  // ── Fetch entries ─────────────────────────────────────────
+  async function loadEntries() {
+    const board = document.getElementById('leaderboard');
+    try {
+      const res = await fetch(`${API}/entries`);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setStatus(true);
+      renderBoard(data);
+      loadStats();
+    } catch {
+      setStatus(false);
+      board.innerHTML = `<div class="empty-state"><span class="big">⚠️</span>CANNOT REACH SERVER<br>IS npm run dev RUNNING?</div>`;
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const res  = await fetch(`${API}/stats`);
+      const data = await res.json();
+      document.getElementById('statTotal').textContent = data.total ?? '—';
+      document.getElementById('statAvg').textContent   = data.avg !== null ? data.avg + '%' : '—';
+      document.getElementById('statShame').textContent = data.shame ?? '—';
+    } catch {}
+  }
+
+  // ── Add entry ─────────────────────────────────────────────
+  async function addEntry() {
+    const name = document.getElementById('nameInput').value.trim();
+    const pct  = parseInt(document.getElementById('pctInput').value);
+    const btn  = document.getElementById('addBtn');
+
+    if (!name) { showToast('⚠ Enter a name first', 'error-toast'); return; }
+
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      const res = await fetch(`${API}/entries`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ name, pct })
+      });
+
+      if (!res.ok) throw new Error((await res.json()).error || 'Error');
+      const entry = await res.json();
+
+      document.getElementById('nameInput').value = '';
+      document.getElementById('pctInput').value  = 50;
+      document.getElementById('rangeDisplay').textContent = '50';
+
+      if (pct < 20) showToast(`🔥 ${entry.name} entered the SHAME ZONE`, 'shame-toast');
+      else          showToast(`✓ ${entry.name} logged at ${pct}%`);
+
+      loadEntries();
+    } catch (e) {
+      showToast(`✗ ${e.message}`, 'error-toast');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '+ LOG IT';
+    }
+  }
+
+  // ── Delete entry ──────────────────────────────────────────
+  async function deleteEntry(id) {
+    try {
+      await fetch(`${API}/entries/${id}`, { method: 'DELETE' });
+      loadEntries();
+    } catch {
+      showToast('✗ Could not delete', 'error-toast');
+    }
+  }
+
+  // ── Nuke all ──────────────────────────────────────────────
+  async function nukeAll() {
+    if (!confirm('Clear the entire leaderboard? This cannot be undone.')) return;
+    try {
+      await fetch(`${API}/entries`, { method: 'DELETE' });
+      showToast('💣 Leaderboard cleared');
+      loadEntries();
+    } catch {
+      showToast('✗ Could not clear', 'error-toast');
+    }
+  }
+
+  // ── Render ────────────────────────────────────────────────
+  function renderBoard(data) {
+    const board = document.getElementById('leaderboard');
+
+    if (data.length === 0) {
+      board.innerHTML = `<div class="empty-state"><span class="big">📊</span>NO COMPETITORS YET<br>BE THE FIRST TO LOG YOUR GRIND</div>`;
+      return;
+    }
+
+    board.innerHTML = data.map((e, i) => {
+      const rankClass  = ['rank-1','rank-2','rank-3'][i] || '';
+      const shameClass = e.pct < 20 ? 'shame' : '';
+      const medal      = ['🥇','🥈','🥉'][i] || `#${i+1}`;
+      return `
+        <div class="entry ${rankClass} ${shameClass}" style="animation-delay:${i*0.04}s">
+          <div class="rank-badge">${medal}</div>
+          <div class="name-area">
+            <div class="name">${escHtml(e.name)}</div>
+            ${e.insult ? `<div class="insult">💀 ${escHtml(e.insult)}</div>` : ''}
+            <div class="ts-label">${timeAgo(e.ts)}</div>
+          </div>
+          <div class="bar-area">
+            <div class="bar-bg">
+              <div class="bar-fill" style="width:${e.pct}%;background:${getBarColor(e.pct)}"></div>
+            </div>
+          </div>
+          <div class="pct-label">${e.pct}%</div>
+          <button class="delete-btn" onclick="deleteEntry(${e.id})" title="Remove">✕</button>
+        </div>`;
+    }).join('');
+  }
+
+  // ── Init ──────────────────────────────────────────────────
+  document.getElementById('nameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addEntry();
+  });
+
+  loadEntries();
+  setInterval(loadEntries, 15000); // auto-refresh every 15s
+</script>
+</body>
+</html>

@@ -1,0 +1,624 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GRIND.RANK PRO — Live Preview</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ink:#0e0c0a;--paper:#f5f0e8;--cream:#ede8dc;--red:#c0392b;
+  --red2:#e74c3c;--gold:#b8860b;--gold2:#d4a017;--green:#1a6b3a;
+  --muted:#7a7060;--border:#c8bfaa;--shame:#8b1a1a;
+  --surface:#faf7f2;--shadow:0 4px 24px rgba(14,12,10,.12);
+  --shadow2:0 12px 48px rgba(14,12,10,.18);
+}
+html{font-size:16px;}
+body{background:var(--paper);color:var(--ink);font-family:'Instrument Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(180,170,150,.06) 28px,rgba(180,170,150,.06) 29px);pointer-events:none;z-index:0;}
+
+.screen{display:none;min-height:100vh;position:relative;z-index:1;animation:screenIn .45s cubic-bezier(.22,1,.36,1);}
+.screen.active{display:flex;flex-direction:column;}
+@keyframes screenIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+/* MASTHEAD */
+.masthead{border-bottom:3px double var(--border);padding:16px 28px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.logo{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;letter-spacing:3px;}
+.logo span{color:var(--red);}
+.masthead-sub{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--cream);border:1px solid var(--border);border-radius:99px;padding:5px 14px 5px 8px;font-size:12px;font-family:'DM Mono',monospace;}
+.avatar{width:22px;height:22px;background:var(--ink);color:var(--paper);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.btn-so{background:none;border:none;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--muted);cursor:pointer;text-transform:uppercase;transition:color .2s;}
+.btn-so:hover{color:var(--red);}
+
+/* CENTER WRAP */
+.center-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;box-shadow:var(--shadow2);padding:44px 48px;width:100%;max-width:480px;position:relative;}
+@media(max-width:520px){.card{padding:28px 22px;}}
+.card::before,.card::after{content:'';position:absolute;width:28px;height:28px;border-color:var(--gold);border-style:solid;}
+.card::before{top:8px;left:8px;border-width:2px 0 0 2px;}
+.card::after{bottom:8px;right:8px;border-width:0 2px 2px 0;}
+
+/* SIGN IN */
+.headline{font-family:'Playfair Display',serif;font-size:clamp(26px,5vw,38px);font-weight:900;line-height:1.1;margin-bottom:6px;}
+.sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.divider{border:none;border-top:1px solid var(--border);margin:18px 0;}
+.field-label{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.field-input{width:100%;background:var(--paper);border:1px solid var(--border);border-radius:3px;color:var(--ink);font-family:'Instrument Sans',sans-serif;font-size:15px;padding:10px 14px;outline:none;transition:border-color .2s,box-shadow .2s;margin-bottom:16px;}
+.field-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(14,12,10,.08);}
+.field-hint{font-size:11px;color:var(--muted);margin-top:-12px;margin-bottom:16px;font-style:italic;}
+.btn-primary{width:100%;background:var(--ink);color:var(--paper);border:none;border-radius:3px;padding:13px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+.btn-primary:hover:not(:disabled){background:#1e1c18;box-shadow:var(--shadow);transform:translateY(-1px);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+.err-box{background:#fdf0ee;border:1px solid #e8b4ae;border-radius:3px;color:var(--red);font-size:12px;padding:10px 14px;margin-bottom:14px;font-family:'DM Mono',monospace;display:none;}
+.err-box.show{display:block;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* QUIZ */
+#screen-quiz .content{max-width:680px;margin:0 auto;padding:28px 20px 60px;width:100%;}
+.quiz-hdr{text-align:center;margin-bottom:32px;}
+.quiz-hdr h1{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,36px);font-weight:900;margin-bottom:6px;}
+.quiz-hdr p{font-size:13px;color:var(--muted);}
+.prog-wrap{margin:16px 0 28px;display:flex;flex-direction:column;gap:6px;}
+.prog-bg{background:var(--cream);border:1px solid var(--border);border-radius:99px;height:6px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--ink);border-radius:99px;transition:width .5s cubic-bezier(.22,1,.36,1);}
+.prog-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);text-align:right;}
+.q-card{background:var(--surface);border:1px solid var(--border);border-radius:4px;box-shadow:var(--shadow);padding:30px 34px;margin-bottom:14px;animation:qIn .35s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;}
+@media(max-width:520px){.q-card{padding:20px 16px;}}
+.q-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gold);border-radius:4px 0 0 4px;}
+.q-card.excuse::before{background:var(--red);}
+@keyframes qIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.q-num{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.q-text{font-family:'Playfair Display',serif;font-size:clamp(15px,2.4vw,19px);font-weight:700;line-height:1.4;margin-bottom:22px;}
+.opts{display:flex;flex-direction:column;gap:9px;}
+.opt{background:var(--paper);border:1px solid var(--border);border-radius:3px;padding:11px 15px;text-align:left;cursor:pointer;font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink);transition:all .18s;display:flex;align-items:center;gap:11px;}
+.opt:hover{border-color:var(--ink);background:var(--cream);transform:translateX(4px);}
+.opt.sel{background:var(--ink);color:var(--paper);border-color:var(--ink);transform:translateX(4px);}
+.q-card.excuse .opt.sel{background:var(--shame);border-color:var(--shame);}
+.opt-ltr{font-family:'DM Mono',monospace;font-size:11px;width:22px;height:22px;border:1px solid currentColor;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.quiz-nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;}
+.btn-sec{background:none;border:1px solid var(--border);border-radius:3px;padding:11px 22px;font-family:'Instrument Sans',sans-serif;font-size:13px;cursor:pointer;color:var(--muted);transition:all .2s;}
+.btn-sec:hover{border-color:var(--ink);color:var(--ink);}
+.btn-next{background:var(--ink);color:var(--paper);border:none;border-radius:3px;padding:11px 28px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;flex:1;max-width:220px;}
+.btn-next:hover:not(:disabled){background:#1e1c18;box-shadow:var(--shadow);}
+.btn-next:disabled{opacity:.35;cursor:not-allowed;}
+
+/* RESULTS */
+#screen-results .content{max-width:660px;margin:0 auto;padding:32px 20px 60px;width:100%;}
+.verdict-banner{text-align:center;margin-bottom:28px;padding:38px 28px;background:var(--surface);border:1px solid var(--border);border-radius:4px;box-shadow:var(--shadow2);position:relative;overflow:hidden;}
+.verdict-banner::before{content:'';position:absolute;left:0;top:0;right:0;height:5px;background:var(--vc,var(--gold));}
+.v-title{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:4px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.big-score{font-family:'Playfair Display',serif;font-size:clamp(72px,18vw,110px);font-weight:900;line-height:1;color:var(--vc,var(--ink));}
+.score-pct{font-family:'Playfair Display',serif;font-size:clamp(18px,4vw,26px);font-weight:700;color:var(--muted);}
+.v-lbl{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-top:8px;color:var(--muted);}
+.roast-box{margin-top:22px;padding:18px 22px;background:var(--cream);border:1px solid var(--border);border-left:4px solid var(--red);border-radius:3px;font-family:'Playfair Display',serif;font-size:clamp(13px,2vw,16px);font-style:italic;line-height:1.65;color:var(--ink);}
+.roast-box.pompous{border-left-color:var(--gold);}
+.roast-attr{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:10px;display:block;}
+.bd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:22px;}
+@media(max-width:500px){.bd-grid{grid-template-columns:repeat(2,1fr);}}
+.bd-box{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 12px;text-align:center;}
+.bd-val{font-family:'Playfair Display',serif;font-size:26px;font-weight:900;display:block;line-height:1;}
+.bd-val.bonus{color:var(--green);}
+.bd-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;display:block;}
+.insult-strip{padding:13px 16px;background:var(--cream);border:1px solid var(--border);border-left:4px solid var(--shame);border-radius:3px;margin-bottom:18px;font-family:'DM Mono',monospace;font-size:11px;color:var(--shame);}
+.btn-lb{width:100%;background:var(--ink);color:var(--paper);border:none;border-radius:3px;padding:14px;font-family:'Playfair Display',serif;font-size:15px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-top:6px;}
+.btn-lb:hover{background:#1e1c18;box-shadow:var(--shadow2);transform:translateY(-2px);}
+.btn-retake{width:100%;background:none;border:1px solid var(--border);border-radius:3px;padding:12px;font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;transition:all .2s;margin-top:10px;}
+.btn-retake:hover{border-color:var(--ink);color:var(--ink);}
+
+/* LEADERBOARD */
+#screen-leaderboard .content{max-width:880px;margin:0 auto;padding:28px 20px 60px;width:100%;}
+.lb-hdr{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.lb-hdr h1{font-family:'Playfair Display',serif;font-size:clamp(24px,5vw,38px);font-weight:900;line-height:1.1;}
+.lb-hdr h1 span{color:var(--red);}
+.auto-tag{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:2px;text-align:right;line-height:1.7;}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;}
+@media(max-width:500px){.stats-strip{grid-template-columns:repeat(2,1fr);}}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:13px 10px;text-align:center;}
+.sv{font-family:'Playfair Display',serif;font-size:24px;font-weight:900;display:block;line-height:1;}
+.sl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:4px;display:block;}
+.tab-bar{display:flex;border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-bottom:20px;}
+.tab-btn{flex:1;background:var(--surface);border:none;border-right:1px solid var(--border);padding:10px 6px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;}
+.tab-btn:last-child{border-right:none;}
+.tab-btn:hover{background:var(--cream);color:var(--ink);}
+.tab-btn.active{background:var(--ink);color:var(--paper);}
+.tab-btn.shame-t.active{background:var(--shame);}
+.tab-btn.excuse-t.active{background:var(--gold);color:var(--ink);}
+.board{display:flex;flex-direction:column;gap:8px;}
+.be{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:13px 18px;display:grid;grid-template-columns:42px 1fr 130px 58px;gap:12px;align-items:center;transition:transform .2s,border-color .2s;animation:eIn .3s ease both;position:relative;overflow:hidden;}
+@media(max-width:540px){.be{grid-template-columns:34px 1fr 58px;}}
+@media(max-width:540px){.bar-a{display:none;}}
+.be::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sc,transparent);}
+.be:hover{transform:translateX(3px);border-color:rgba(14,12,10,.2);}
+.be.r1{--sc:var(--gold2);border-color:rgba(184,134,11,.2);}
+.be.r2{--sc:#9e9e9e;}
+.be.r3{--sc:var(--gold);}
+.be.shame-e{--sc:var(--shame);border-color:rgba(139,26,26,.22);animation:sP 2.5s ease infinite;}
+.be.pomp-e{--sc:var(--gold2);border-color:rgba(184,134,11,.22);}
+.be.you-e{background:#f0ede4;}
+@keyframes sP{0%,100%{box-shadow:none}50%{box-shadow:0 0 18px rgba(139,26,26,.18)}}
+@keyframes eIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.rnum{font-family:'Playfair Display',serif;font-size:20px;font-weight:900;text-align:center;line-height:1;}
+.ename{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.you-b{display:inline-block;background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;padding:1px 5px;border-radius:2px;margin-left:6px;vertical-align:middle;}
+.einsult{font-family:'DM Mono',monospace;font-size:10px;color:var(--shame);margin-top:2px;}
+.eroast{font-family:'Playfair Display',serif;font-size:11px;font-style:italic;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.epomp{font-family:'Playfair Display',serif;font-size:11px;font-style:italic;color:var(--gold);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.etime{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:2px;}
+.bar-a{display:flex;flex-direction:column;gap:4px;}
+.bar-bg{background:var(--cream);border:1px solid var(--border);border-radius:99px;height:5px;overflow:hidden;}
+.bar-f{height:100%;border-radius:99px;transition:width .8s cubic-bezier(.22,1,.36,1);}
+.bar-s{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);text-align:right;}
+.btag{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--green);display:block;}
+.pnum{font-family:'Playfair Display',serif;font-size:22px;font-weight:900;text-align:right;line-height:1;}
+.be.shame-e .pnum{color:var(--shame);}
+.be.r1 .pnum{color:var(--gold);}
+.be.pomp-e .pnum{color:var(--gold2);}
+.empty-b{text-align:center;padding:56px 20px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--muted);border:1px dashed var(--border);border-radius:4px;line-height:2.2;}
+.lb-acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;}
+.btn-qa{background:var(--ink);color:var(--paper);border:none;border-radius:3px;padding:11px 22px;font-family:'Playfair Display',serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-qa:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.btn-ref{background:none;border:1px solid var(--border);border-radius:3px;padding:11px 18px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:all .2s;}
+.btn-ref:hover{border-color:var(--ink);color:var(--ink);}
+.eyebrow{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:14px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;padding:12px 18px;border-radius:3px;box-shadow:var(--shadow2);opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;z-index:999;max-width:300px;line-height:1.5;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.red{background:var(--shame);}
+.toast.gold{background:var(--gold2);color:var(--ink);}
+
+/* LOADING */
+.loading{position:fixed;inset:0;background:rgba(245,240,232,.85);display:none;align-items:center;justify-content:center;z-index:500;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;}
+.loading.show{display:flex;}
+.spinner{width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--ink);border-radius:50%;animation:spin .7s linear infinite;margin-right:14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* PREVIEW BANNER */
+.preview-bar{background:var(--ink);color:var(--paper);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;padding:7px 18px;text-align:center;text-transform:uppercase;z-index:100;position:relative;}
+.preview-bar span{color:var(--gold2);}
+</style>
+</head>
+<body>
+
+<div class="preview-bar">⚡ INTERACTIVE PREVIEW MODE — <span>Sign in works · Quiz is live · Leaderboard uses mock data</span></div>
+
+<!-- SIGN IN -->
+<div id="screen-signin" class="screen active">
+  <div class="masthead">
+    <div class="logo">GRIND<span>.</span>RANK</div>
+    <div class="masthead-sub">The Productivity Tribunal</div>
+  </div>
+  <div class="center-wrap">
+    <div class="card">
+      <div class="headline" style="font-family:'Playfair Display',serif">You Are About<br>To Be Judged.</div>
+      <p class="sub">Sign in to take the productivity assessment. Your score is computed from your answers — not your ego — and displayed publicly for all to see.</p>
+      <hr class="divider">
+      <div class="err-box" id="si-err"></div>
+      <label class="field-label" for="si-u">Handle / Username</label>
+      <input class="field-input" type="text" id="si-u" placeholder="e.g. HardWorker99" maxlength="24"/>
+      <label class="field-label" for="si-p">Password</label>
+      <input class="field-input" type="password" id="si-p" placeholder="Min. 4 characters"/>
+      <p class="field-hint">New here? We'll create your account automatically.</p>
+      <button class="btn-primary" id="si-btn" onclick="doSignIn()">Enter the Tribunal →</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<span>.</span>RANK</div>
+    <div class="user-chip">
+      <div class="avatar" id="q-av">?</div>
+      <span id="q-un">—</span>
+      <button class="btn-so" onclick="doSignOut()">sign out</button>
+    </div>
+  </div>
+  <div style="max-width:680px;margin:0 auto;padding:28px 20px 60px;width:100%;" id="quiz-wrap">
+    <div class="quiz-hdr">
+      <h1>The Assessment</h1>
+      <p>Answer honestly. We will know if you don't.</p>
+    </div>
+    <div class="prog-wrap">
+      <div class="prog-bg"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+      <div class="prog-lbl" id="prog-lbl" style="font-family:'DM Mono',monospace">Question 1 of 10</div>
+    </div>
+    <div id="q-area"></div>
+    <div class="quiz-nav">
+      <button class="btn-sec" id="btn-prev" onclick="prevQ()" style="display:none">← Back</button>
+      <button class="btn-next" id="btn-next" onclick="nextQ()" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="screen-results" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<span>.</span>RANK</div>
+    <div class="user-chip">
+      <div class="avatar" id="r-av">?</div>
+      <span id="r-un">—</span>
+      <button class="btn-so" onclick="doSignOut()">sign out</button>
+    </div>
+  </div>
+  <div style="max-width:660px;margin:0 auto;padding:32px 20px 60px;width:100%;" id="results-wrap"></div>
+</div>
+
+<!-- LEADERBOARD -->
+<div id="screen-leaderboard" class="screen">
+  <div class="masthead">
+    <div class="logo">GRIND<span>.</span>RANK</div>
+    <div class="user-chip">
+      <div class="avatar" id="lb-av">?</div>
+      <span id="lb-un">—</span>
+      <button class="btn-so" onclick="doSignOut()">sign out</button>
+    </div>
+  </div>
+  <div style="max-width:880px;margin:0 auto;padding:28px 20px 60px;width:100%;">
+    <div class="lb-hdr">
+      <h1 style="font-family:'Playfair Display',serif">The <span>Verdict</span><br>Is Public.</h1>
+      <div class="auto-tag">AUTO-REFRESHES<br>EVERY 20 SECONDS</div>
+    </div>
+    <div class="stats-strip" id="lb-stats"></div>
+    <div class="tab-bar">
+      <button class="tab-btn active" id="tab-top" onclick="setTab('top')">🏆 Rankings</button>
+      <button class="tab-btn shame-t" id="tab-shame" onclick="setTab('shame')">💀 Shame Wall</button>
+      <button class="tab-btn excuse-t" id="tab-excuse" onclick="setTab('excuse')">🤥 Excuse Board</button>
+    </div>
+    <div class="board" id="board"></div>
+    <div class="lb-acts">
+      <button class="btn-qa" onclick="startQuiz()">Retake Assessment</button>
+      <button class="btn-ref" onclick="renderLeaderboard()">⟳ Refresh</button>
+    </div>
+  </div>
+</div>
+
+<div class="loading" id="loading"><div class="spinner"></div>Processing…</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════
+//  DATA & STATE
+// ════════════════════════════════════════════════
+const QUESTIONS = [
+  { id:'q1', label:'QUESTION 1', text:'How many hours of focused, distraction-free work did you do today?',
+    opts:['0 hours','1–2 hours','3–4 hours','5–6 hours','7+ hours'], w:[0,15,30,45,60] },
+  { id:'q2', label:'QUESTION 2', text:'How many tasks from your to-do list did you actually complete?',
+    opts:['None — I have no list','I had a list, did nothing','1–2 tasks','About half','All of them'], w:[0,2,15,30,50] },
+  { id:'q3', label:'QUESTION 3', text:'How often did you check social media or random sites during work hours?',
+    opts:['Constantly (every 5 mins)','Every 30 mins','Once an hour','A couple of times','Not once'], w:[0,8,18,28,40] },
+  { id:'q4', label:'QUESTION 4', text:'Did you meet any deadlines or commitments today?',
+    opts:['Missed all of them','Missed most','Mixed results','Met most of them','Crushed every single one'], w:[0,10,20,35,50] },
+  { id:'q5', label:'QUESTION 5', text:'How would you rate your energy and focus throughout the day?',
+    opts:['Basically hibernating','Sluggish most of the day','Average, with dips','Mostly sharp','Peak performance all day'], w:[0,10,22,35,50] },
+  { id:'q6', label:'QUESTION 6', text:'How many meetings or calls did you actually prepare for (not wing it)?',
+    opts:['Had no meetings','Winged all of them','Prepped for one','Prepped for most','Fully prepared for all'], w:[20,0,15,30,40] },
+  { id:'q7', label:'QUESTION 7', text:'Did you learn or improve a skill intentionally today?',
+    opts:['Nope, same as yesterday','Briefly looked at something','Read / watched relevant content','Practiced and applied it','Dedicated session + applied it'], w:[0,8,18,30,40] },
+  { id:'q8', label:'QUESTION 8', text:'How many times did you procrastinate on something you knew you had to do?',
+    opts:['Procrastinated everything','5+ times','3–4 times','Once or twice','Zero — I am built different'], w:[0,5,15,28,40] },
+  { id:'q9', label:'QUESTION 9', text:'Did you hit a meaningful deep work state — full flow / immersion?',
+    opts:['Flow? What is that?','Almost got there','Had a few minutes of it','Yes, for about an hour','Yes — multiple sessions'], w:[0,8,18,28,40] },
+  { id:'q_excuse', label:'THE EXCUSE', text:"What's the excuse you've been telling yourself about why you're not more productive?",
+    isExcuse:true,
+    opts:[
+      '"I work better under pressure" (you don\'t)',
+      '"I\'m a night owl" (it\'s 3pm)',
+      '"I need the perfect setup first"',
+      '"I\'m too tired / burned out"',
+      '"I\'ll start fresh tomorrow"',
+      '"I have too many meetings"',
+      '"I\'m waiting for inspiration"',
+      '"I don\'t actually have an excuse — I just slacked"'
+    ], w:[5,5,5,10,3,8,3,20] }
+];
+
+const MAX_RAW = QUESTIONS.filter(q=>!q.isExcuse).reduce((s,q)=>s+Math.max(...q.w),0);
+const MAX_EXC = Math.max(...QUESTIONS.find(q=>q.isExcuse).w);
+
+const ROASTS = [
+  "Congratulations. You have achieved the productivity of a decorative throw pillow — present, soft, and entirely useless.",
+  "Remarkable. Even a screensaver manages to move. You, apparently, could not.",
+  "Your ancestors crossed oceans and built civilisations. You opened twelve tabs and closed them all.",
+  "Scientists have found more measurable output in a jar of expired mayonnaise.",
+  "Your to-do list is filing for emancipation. It refuses to be ignored another day.",
+  "The WiFi router in your home has done more computing today than you have.",
+  "Bravely, boldly, aggressively — you accomplished nothing. That takes a special kind of commitment.",
+  "I have seen potted cacti produce more results today, and they require watering once a month."
+];
+const POMPOUS = [
+  "Oh how delightfully audacious — a high score, yet here you are, still among the common folk. Does the altitude of your achievement give you nosebleeds?",
+  "Ah, a top performer. How terribly exhausting it must be, carrying the weight of everyone else's mediocrity on those capable shoulders.",
+  "Your score is commendable, in the way a butler might describe a slightly-above-average soufflé. We expected nothing less. We received precisely that.",
+  "You have performed admirably within the narrow confines of what the rest of us consider basic competence. Bravo.",
+  "One can only imagine the thrilling anecdote this will make at your next dinner party among equally productive and equally dull acquaintances."
+];
+const INSULTS = [
+  "functioning at the speed of continental drift",
+  "technically employed, existentially absent",
+  "the 404 of human resources",
+  "peer-reviewed proof that effort is optional",
+  "a cautionary tale with a LinkedIn profile",
+  "the loading screen nobody asked for",
+  "completing tasks at geological pace",
+  "a masterclass in aggressive non-delivery"
+];
+
+const MOCK_USERS = [
+  { id:'u1', username:'ProductivityGod', pct:91, excusePct:80, excuseBonus:0, insult:null, roast:POMPOUS[0], isHighScoreLowEffort:true, submittedAt: new Date(Date.now()-3600000).toISOString() },
+  { id:'u2', username:'CrushinIt2024',   pct:78, excusePct:50, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-7200000).toISOString() },
+  { id:'u3', username:'AlmostThere',     pct:61, excusePct:25, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-1800000).toISOString() },
+  { id:'u4', username:'MondayEnergy',    pct:44, excusePct:15, excuseBonus:10, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-900000).toISOString() },
+  { id:'u5', username:'DeepInMeetings',  pct:31, excusePct:40, excuseBonus:0, insult:null, roast:null, isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-600000).toISOString() },
+  { id:'u6', username:'TomorrowForSure', pct:14, excusePct:15, excuseBonus:10, insult:INSULTS[0], roast:ROASTS[0], isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-300000).toISOString() },
+  { id:'u7', username:'NightOwl99',      pct:8,  excusePct:25, excuseBonus:0, insult:INSULTS[3], roast:ROASTS[3], isHighScoreLowEffort:false, submittedAt: new Date(Date.now()-120000).toISOString() },
+];
+
+let currentUser = null;
+let answers     = {};
+let currentQ    = 0;
+let lastResult  = null;
+let currentTab  = 'top';
+let lbTimer     = null;
+
+// ════════════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════════════
+const $     = id => document.getElementById(id);
+const LTRS  = 'ABCDEFGHIJ';
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function timeAgo(iso){
+  const d=Math.floor((Date.now()-new Date(iso))/1000);
+  if(d<60)return d+'s ago';
+  if(d<3600)return Math.floor(d/60)+'m ago';
+  if(d<86400)return Math.floor(d/3600)+'h ago';
+  return Math.floor(d/86400)+'d ago';
+}
+
+function barColor(p){ if(p>=80)return '#1a6b3a'; if(p>=60)return '#2e7d32'; if(p>=40)return '#b8860b'; if(p>=20)return '#e65100'; return '#8b1a1a'; }
+
+function scoreLabel(p){ if(p>=85)return 'EXCEPTIONAL'; if(p>=70)return 'COMMENDABLE'; if(p>=50)return 'ADEQUATE'; if(p>=35)return 'CONCERNING'; if(p>=20)return 'ALARMING'; return 'CATASTROPHIC'; }
+
+function rand(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function toast(msg, type=''){
+  const t=$('toast'); t.textContent=msg;
+  t.className='toast show '+(type||'');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.className='toast',3500);
+}
+
+function loading(v){ $('loading').className=v?'loading show':'loading'; }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function setChips(){
+  if(!currentUser)return;
+  const i=currentUser.username[0].toUpperCase();
+  ['q','r','lb'].forEach(p=>{ const a=$(p+'-av'), u=$(p+'-un'); if(a)a.textContent=i; if(u)u.textContent=currentUser.username; });
+}
+
+// ════════════════════════════════════════════════
+//  SCORING (mirrors server logic)
+// ════════════════════════════════════════════════
+function computeScore(ans){
+  let raw=0, excW=0;
+  QUESTIONS.forEach(q=>{
+    const idx=ans[q.id];
+    if(idx==null||idx===undefined)return;
+    const w=q.w[idx]||0;
+    if(q.isExcuse) excW=w; else raw+=w;
+  });
+  let pct=Math.min(100,Math.round((raw/MAX_RAW)*100));
+  const excusePct=Math.round((excW/MAX_EXC)*100);
+  let excuseBonus=0;
+  if(excusePct<20){ pct=Math.min(100,pct+10); excuseBonus=10; }
+  const isHighScoreLowEffort=pct>=70&&excusePct<20;
+  const roast=pct<20?rand(ROASTS):(isHighScoreLowEffort?rand(POMPOUS):null);
+  const insult=pct<20?rand(INSULTS):null;
+  return { pct, excusePct, excuseBonus, roast, insult, isHighScoreLowEffort };
+}
+
+// ════════════════════════════════════════════════
+//  AUTH (local, no server needed in preview)
+// ════════════════════════════════════════════════
+function doSignIn(){
+  const u=$('si-u').value.trim(), p=$('si-p').value;
+  const errEl=$('si-err'), btn=$('si-btn');
+  errEl.classList.remove('show');
+
+  if(u.length<2){ errEl.textContent='Username must be at least 2 characters'; errEl.classList.add('show'); return; }
+  if(p.length<4){ errEl.textContent='Password must be at least 4 characters'; errEl.classList.add('show'); return; }
+
+  btn.disabled=true; btn.textContent='One moment…';
+  setTimeout(()=>{
+    currentUser={ id:'you-'+Date.now(), username:u };
+    setChips();
+    toast('Welcome, '+u+'. The tribunal awaits.');
+    startQuiz();
+    btn.disabled=false; btn.textContent='Enter the Tribunal →';
+  },600);
+}
+
+function doSignOut(){
+  currentUser=null; answers={}; currentQ=0;
+  clearInterval(lbTimer);
+  show('screen-signin');
+}
+
+// ════════════════════════════════════════════════
+//  QUIZ
+// ════════════════════════════════════════════════
+function startQuiz(){ answers={}; currentQ=0; renderQ(); show('screen-quiz'); }
+
+function renderQ(){
+  const q=QUESTIONS[currentQ], total=QUESTIONS.length;
+  $('prog').style.width=Math.round((currentQ/total)*100)+'%';
+  $('prog-lbl').textContent='Question '+(currentQ+1)+' of '+total;
+
+  const sel=answers[q.id];
+  const isExc=!!q.isExcuse;
+
+  $('q-area').innerHTML=`
+    <div class="q-card${isExc?' excuse':''}">
+      <div class="q-num" style="font-family:'DM Mono',monospace">${q.label}</div>
+      <div class="q-text" style="font-family:'Playfair Display',serif">${esc(q.text)}</div>
+      <div class="opts">
+        ${q.opts.map((o,i)=>`
+          <button class="opt${sel===i?' sel':''}" onclick="selOpt(${i})">
+            <span class="opt-ltr">${LTRS[i]}</span>${esc(o)}
+          </button>`).join('')}
+      </div>
+    </div>`;
+
+  $('btn-prev').style.display=currentQ>0?'block':'none';
+  $('btn-next').disabled=(sel===undefined||sel===null);
+  $('btn-next').textContent=currentQ===total-1?'Submit & See Verdict →':'Next →';
+}
+
+function selOpt(i){ answers[QUESTIONS[currentQ].id]=i; renderQ(); }
+
+function nextQ(){
+  if(currentQ<QUESTIONS.length-1){ currentQ++; renderQ(); $('quiz-wrap').scrollIntoView({behavior:'smooth',block:'start'}); }
+  else submitQuiz();
+}
+
+function prevQ(){ if(currentQ>0){ currentQ--; renderQ(); } }
+
+function submitQuiz(){
+  loading(true);
+  setTimeout(()=>{
+    const res=computeScore(answers);
+    lastResult=res;
+    // add to mock leaderboard
+    const existIdx=MOCK_USERS.findIndex(u=>u.id===currentUser.id);
+    const entry={ ...res, id:currentUser.id, userId:currentUser.id, username:currentUser.username, submittedAt:new Date().toISOString() };
+    if(existIdx>=0) MOCK_USERS[existIdx]=entry; else MOCK_USERS.push(entry);
+    renderResults(res);
+    show('screen-results');
+    loading(false);
+  },900);
+}
+
+// ════════════════════════════════════════════════
+//  RESULTS
+// ════════════════════════════════════════════════
+function renderResults(r){
+  const p=r.pct;
+  const vc=p>=70?'var(--gold)':p>=40?'var(--ink)':'var(--shame)';
+  const label=scoreLabel(p);
+  const roastClass=r.isHighScoreLowEffort?'roast-box pompous':'roast-box';
+  const roastAttr=r.isHighScoreLowEffort?'— The Tribunal, on High Performers Who Still Lack Self-Awareness':'— Official Tribunal Assessment';
+
+  $('results-wrap').innerHTML=`
+    <div class="verdict-banner" style="--vc:${vc}">
+      <div class="v-title" style="font-family:'DM Mono',monospace">YOUR VERDICT</div>
+      <div class="big-score" style="font-family:'Playfair Display',serif;color:${vc}">${p}</div>
+      <div class="score-pct" style="font-family:'Playfair Display',serif">/ 100</div>
+      <div class="v-lbl" style="font-family:'DM Mono',monospace">${label}</div>
+      ${r.roast?`<div class="${roastClass}">"${esc(r.roast)}"<span class="roast-attr">${roastAttr}</span></div>`:''}
+    </div>
+    <div class="eyebrow">SCORE BREAKDOWN</div>
+    <div class="bd-grid">
+      <div class="bd-box"><span class="bd-val" style="font-family:'Playfair Display',serif">${p}%</span><span class="bd-lbl">Final Score</span></div>
+      <div class="bd-box"><span class="bd-val" style="font-family:'Playfair Display',serif">${r.excusePct}%</span><span class="bd-lbl">Excuse Honesty</span></div>
+      <div class="bd-box"><span class="bd-val bonus" style="font-family:'Playfair Display',serif">+${r.excuseBonus}</span><span class="bd-lbl">Honesty Bonus</span></div>
+    </div>
+    ${r.insult?`<div class="insult-strip">💀 Public designation: <em>${esc(r.insult)}</em></div>`:''}
+    <button class="btn-lb" onclick="goLB()" style="font-family:'Playfair Display',serif">View the Public Leaderboard →</button>
+    <button class="btn-retake" onclick="startQuiz()">Retake Assessment</button>`;
+}
+
+// ════════════════════════════════════════════════
+//  LEADERBOARD
+// ════════════════════════════════════════════════
+function goLB(){ show('screen-leaderboard'); renderLeaderboard(); clearInterval(lbTimer); lbTimer=setInterval(renderLeaderboard,20000); }
+
+function setTab(t){
+  currentTab=t;
+  ['top','shame','excuse'].forEach(x=>$('tab-'+x).classList.toggle('active',x===t));
+  renderLeaderboard();
+}
+
+function renderLeaderboard(){
+  const sorted=[...MOCK_USERS].sort((a,b)=>{
+    if(currentTab==='top')   return b.pct-a.pct;
+    if(currentTab==='shame') return a.pct-b.pct;
+    return a.excusePct-b.excusePct; // excuse board
+  });
+
+  const total=sorted.length;
+  const avg=total?Math.round(sorted.reduce((s,e)=>s+e.pct,0)/total):null;
+  const shame=sorted.filter(e=>e.pct<20).length;
+
+  $('lb-stats').innerHTML=`
+    <div class="sc"><span class="sv" style="font-family:'Playfair Display',serif">${total}</span><span class="sl">Contestants</span></div>
+    <div class="sc"><span class="sv" style="font-family:'Playfair Display',serif">${avg!==null?avg+'%':'—'}</span><span class="sl">Avg Score</span></div>
+    <div class="sc"><span class="sv" style="font-family:'Playfair Display',serif;color:var(--shame)">${shame}</span><span class="sl">Shame Zone</span></div>
+    <div class="sc"><span class="sv" style="font-family:'Playfair Display',serif">${total}</span><span class="sl">Registered</span></div>`;
+
+  if(!sorted.length){
+    $('board').innerHTML='<div class="empty-b">NO ENTRIES YET<br>Be the first to complete the assessment.</div>';
+    return;
+  }
+
+  $('board').innerHTML=sorted.map((e,i)=>{
+    const isYou=currentUser&&e.userId===currentUser.id;
+    const r1=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const shCl=e.pct<20?'shame-e':'';
+    const poCl=e.isHighScoreLowEffort?'pomp-e':'';
+    const youCl=isYou?'you-e':'';
+    const medal=['🥇','🥈','🥉'][i]||null;
+    const rnk=medal?`<span style="font-size:22px">${medal}</span>`:`<span class="rnum" style="font-family:'Playfair Display',serif">${i+1}</span>`;
+
+    let snippet='';
+    if(e.roast&&e.pct<20) snippet=`<div class="eroast">"${esc(e.roast.substring(0,72))}…"</div>`;
+    else if(e.roast&&e.isHighScoreLowEffort) snippet=`<div class="epomp">"${esc(e.roast.substring(0,72))}…"</div>`;
+
+    const excInfo=currentTab==='excuse'
+      ?`<div class="einsult">Excuse honesty: ${e.excusePct}%${e.excuseBonus>0?' (+'+e.excuseBonus+' pts)':''}</div>`
+      :(e.insult?`<div class="einsult">💀 ${esc(e.insult)}</div>`:'');
+
+    return `
+      <div class="be ${r1} ${shCl} ${poCl} ${youCl}" style="animation-delay:${i*.04}s">
+        <div style="text-align:center">${rnk}</div>
+        <div style="min-width:0">
+          <div class="ename">${esc(e.username)}${isYou?'<span class="you-b">YOU</span>':''}</div>
+          ${excInfo}${snippet}
+          <div class="etime" style="font-family:'DM Mono',monospace">${timeAgo(e.submittedAt)}</div>
+        </div>
+        <div class="bar-a">
+          <div class="bar-bg"><div class="bar-f" style="width:${e.pct}%;background:${barColor(e.pct)}"></div></div>
+          <div class="bar-s" style="font-family:'DM Mono',monospace">${scoreLabel(e.pct)}</div>
+          ${e.excuseBonus>0?`<span class="btag">+${e.excuseBonus} HONESTY</span>`:''}
+        </div>
+        <div><div class="pnum" style="font-family:'Playfair Display',serif">${e.pct}%</div></div>
+      </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  KEYBOARD SHORTCUTS
+// ════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if($('screen-signin').classList.contains('active')&&e.key==='Enter'){ doSignIn(); return; }
+  if($('screen-quiz').classList.contains('active')){
+    const n=parseInt(e.key);
+    if(!isNaN(n)&&n>=1&&n<=9) selOpt(n-1);
+    const idx=LTRS.indexOf(e.key.toUpperCase());
+    if(idx>=0) selOpt(idx);
+    if(e.key==='Enter'&&!$('btn-next').disabled) nextQ();
+    if(e.key==='ArrowLeft') prevQ();
+  }
+});
+</script>
+</body>
+</html>

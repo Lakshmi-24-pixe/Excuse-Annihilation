@@ -1,0 +1,9 @@
+[project]
+name = "excuse-analyser"
+version = "0.1.0"
+description = "A tool to analyze excuses"
+authors = ["Your Name <you@example.com>"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
